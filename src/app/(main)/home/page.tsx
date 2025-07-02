@@ -1,3 +1,12 @@
+import { PostCreator } from "@/components/post-creator";
+
 export default function HomePage() {
-  return <h1>HomePage</h1>;
+  return (
+    <div className="max-w-2xl">
+      <div className="border-b border-gray-800 p-4 sticky top-0 bg-black">
+        <h1 className="text-xl font-bold">Home</h1>
+      </div>
+      <PostCreator />
+    </div>
+  );
 }

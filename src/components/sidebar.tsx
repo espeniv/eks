@@ -29,11 +29,6 @@ export function Sidebar() {
           💬 Messages
         </Link>
       </nav>
-      <div className="mt-8">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full w-full">
-          Post
-        </button>
-      </div>
     </aside>
   );
 }
