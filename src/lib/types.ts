@@ -3,13 +3,14 @@ export interface User {
   username: string;
   displayName: string;
   avatar?: string;
+  bio?: string;
+  followers: number;
+  following: number;
 }
-
 export interface Post {
   id: string;
   content: string;
   author: User;
   likes: number;
-  replies: number;
   createdAt: string;
 }
