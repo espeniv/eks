@@ -4,12 +4,16 @@ import { Post } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface PostCardProps {
   post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.likes);
+
   const router = useRouter();
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -20,6 +24,11 @@ export function PostCard({ post }: PostCardProps) {
       return;
     }
     router.push(`/post/${post.id}`);
+  };
+
+  const handleLikeClick = () => {
+    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+    setIsLiked(!isLiked);
   };
 
   return (
@@ -62,11 +71,11 @@ export function PostCard({ post }: PostCardProps) {
             className="flex items-center space-x-2 hover:text-red-400 hover:bg-red-400/10 p-2 rounded-full transition-colors ml-4"
             onClick={(e) => {
               e.stopPropagation();
-              console.log("Like clicked");
+              handleLikeClick();
             }}
           >
-            <span>🤍</span>
-            <span>{post.likes}</span>
+            <span>{isLiked ? "❤️" : "🤍"}</span>
+            <span>{likeCount}</span>
           </button>
         </div>
       </div>

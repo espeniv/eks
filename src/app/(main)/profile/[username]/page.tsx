@@ -22,6 +22,15 @@ function getUserByUsername(username: string): User | null {
       followers: 750,
       following: 430,
     },
+    testuser: {
+      id: "user3",
+      username: "testuser",
+      displayName: "Test User",
+      avatar: undefined,
+      bio: "Testbio",
+      followers: 123,
+      following: 321,
+    },
   };
 
   return sampleUsers[username] || null;
