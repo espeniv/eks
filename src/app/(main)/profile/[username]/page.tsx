@@ -1,7 +1,7 @@
 "use client";
 
-import { PostCard } from "@/components/post-card";
-import { User, Post } from "@/lib/types";
+import { PostFeed } from "@/components/post-feed";
+import { User } from "@/lib/types";
 import { useApp } from "@/context/app-context";
 
 //Temp before endpoints/proper fetching
@@ -39,45 +39,6 @@ function getUserByUsername(username: string): User | null {
   return sampleUsers[username] || null;
 }
 
-function getPostsByUser(userId: string): Post[] {
-  const allPosts: Post[] = [
-    {
-      id: "1",
-      content: "Just built my first Next.js app! The App Router is amazing 🚀",
-      author: {
-        id: "user1",
-        username: "johndoe",
-        displayName: "John Doe",
-        avatar: undefined,
-        bio: "Full-stack developer passionate about React and Next.js 🚀",
-        followers: 1250,
-        following: 890,
-      },
-      likes: 24,
-      createdAt: "2h",
-    },
-    {
-      id: "2",
-      content:
-        "Learning React step by step. The component model makes so much sense! 💡",
-      author: {
-        id: "user2",
-        username: "janesmith",
-        displayName: "Jane Smith",
-        avatar: undefined,
-        bio: "UI/UX Designer • Coffee enthusiast ☕",
-        followers: 750,
-        following: 430,
-      },
-      likes: 15,
-      createdAt: "4h",
-    },
-  ];
-
-  return allPosts.filter((post) => post.author.id === userId);
-}
-
-//Need to implement a different version of this when the visited page is your own profile, alt only show setting button if its your own profile
 export default function ProfilePage({
   params,
 }: {
@@ -99,9 +60,7 @@ export default function ProfilePage({
       </div>
     );
   }
-  //if user exists
 
-  const userPosts = getPostsByUser(user.id);
   return (
     <div className="max-w-2xl">
       <div className="p-4">
@@ -155,15 +114,7 @@ export default function ProfilePage({
 
       <div className="border-b border-gray-800" />
 
-      <div>
-        {userPosts.length > 0 ? (
-          userPosts.map((post) => <PostCard key={post.id} post={post} />)
-        ) : (
-          <div className="p-8 text-center">
-            <p className="text-gray-500">No posts yet</p>
-          </div>
-        )}
-      </div>
+      <PostFeed filterByUserId={user.id} />
     </div>
   );
 }

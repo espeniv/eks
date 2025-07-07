@@ -1,75 +1,26 @@
+"use client";
+
 import { PostCard } from "@/components/post-card";
-import { Post } from "@/lib/types";
-
-//Temp until data fetching ig properly implemented
-function getPostById(id: string): Post {
-  const samplePosts: { [key: string]: Post } = {
-    "1": {
-      id: "1",
-      content:
-        "Just built my first Next.js app! The App Router is amazing 🚀\n\nThe way it handles routing and layouts is so clean.",
-      author: {
-        id: "user1",
-        username: "johndoe",
-        displayName: "John Doe",
-        avatar: undefined,
-        followers: 123,
-        following: 123,
-      },
-      likes: 27,
-      createdAt: "2h",
-    },
-    "2": {
-      id: "2",
-      content:
-        "Learning React step by step. The component model makes so much sense! 💡",
-      author: {
-        id: "user2",
-        username: "janesmith",
-        displayName: "Jane Smith",
-        avatar: undefined,
-        followers: 123,
-        following: 123,
-      },
-      likes: 18,
-      createdAt: "4h",
-    },
-    "3": {
-      id: "3",
-      content:
-        "Hot take: TypeScript makes JavaScript development so much better. The type safety catches bugs before they happen! 🐛✨",
-      author: {
-        id: "user3",
-        username: "devmike",
-        displayName: "Mike Chen",
-        avatar: undefined,
-        followers: 123,
-        following: 123,
-      },
-      likes: 42,
-      createdAt: "6h",
-    },
-  };
-
-  return (
-    samplePosts[id] || {
-      id: id,
-      content: `Post ${id} not found or has been deleted.`,
-      author: {
-        id: "unknown",
-        username: "unknown",
-        displayName: "Unknown User",
-        avatar: undefined,
-      },
-      likes: 0,
-      replies: 0,
-      createdAt: "unknown",
-    }
-  );
-}
+import { useApp } from "@/context/app-context";
 
 export default function PostPage({ params }: { params: { id: string } }) {
+  const { getPostById } = useApp();
   const post = getPostById(params.id);
+
+  //Case if post is not found
+  if (!post) {
+    return (
+      <div className="max-w-2xl">
+        <div className="p-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Post not found</h1>
+          <p className="text-gray-500">
+            The post you are looking for does not exist or has been deleted.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl">
       <PostCard post={post} />

@@ -7,6 +7,7 @@ interface AppContextType {
   posts: Post[];
   addPost: (content: string) => void;
   likePost: (postId: string) => void;
+  getPostById: (id: string) => Post | null;
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
 }
@@ -80,11 +81,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const getPostById = (id: string): Post | null => {
+    return posts.find((post) => post.id === id) || null;
+  };
+
   // The value object that will be provided to all children
   const value: AppContextType = {
     posts,
     addPost,
     likePost,
+    getPostById,
     currentUser,
     setCurrentUser,
   };
