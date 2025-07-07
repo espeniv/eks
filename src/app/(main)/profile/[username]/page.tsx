@@ -3,6 +3,7 @@
 import { PostFeed } from "@/components/post-feed";
 import { User } from "@/lib/types";
 import { useApp } from "@/context/app-context";
+import { use } from "react";
 
 //Temp before endpoints/proper fetching
 function getUserByUsername(username: string): User | null {
@@ -42,10 +43,10 @@ function getUserByUsername(username: string): User | null {
 export default function ProfilePage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  //Temp solution
-  const user = getUserByUsername(params.username);
+  const { username } = use(params);
+  const user = getUserByUsername(username);
   const { currentUser } = useApp();
   //Check if user exists
   if (!user) {
@@ -53,9 +54,7 @@ export default function ProfilePage({
       <div className="max-w-2xl">
         <div className="p-8 text-center">
           <h1 className="text-2xl font-bold mb-4">User not found</h1>
-          <p className="text-gray-500">
-            No user with username @{params.username}
-          </p>
+          <p className="text-gray-500">No user with username @{username}</p>
         </div>
       </div>
     );

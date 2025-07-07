@@ -2,10 +2,17 @@
 
 import { PostCard } from "@/components/post-card";
 import { useApp } from "@/context/app-context";
+import { use } from "react";
 
-export default function PostPage({ params }: { params: { id: string } }) {
+export default function PostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { getPostById } = useApp();
-  const post = getPostById(params.id);
+
+  const { id } = use(params);
+  const post = getPostById(id);
 
   //Case if post is not found
   if (!post) {
