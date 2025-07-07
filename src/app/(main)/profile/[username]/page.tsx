@@ -1,5 +1,8 @@
+"use client";
+
 import { PostCard } from "@/components/post-card";
 import { User, Post } from "@/lib/types";
+import { useApp } from "@/context/app-context";
 
 //Temp before endpoints/proper fetching
 function getUserByUsername(username: string): User | null {
@@ -23,7 +26,7 @@ function getUserByUsername(username: string): User | null {
       following: 430,
     },
     testuser: {
-      id: "user3",
+      id: "current-user",
       username: "testuser",
       displayName: "Test User",
       avatar: undefined,
@@ -82,7 +85,7 @@ export default function ProfilePage({
 }) {
   //Temp solution
   const user = getUserByUsername(params.username);
-
+  const { currentUser } = useApp();
   //Check if user exists
   if (!user) {
     return (
@@ -99,7 +102,6 @@ export default function ProfilePage({
   //if user exists
 
   const userPosts = getPostsByUser(user.id);
-
   return (
     <div className="max-w-2xl">
       <div className="p-4">
@@ -124,9 +126,15 @@ export default function ProfilePage({
                 <h1 className="text-2xl font-bold">{user.displayName}</h1>
                 <p className="text-gray-500">@{user.username}</p>
               </div>
-              <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors">
-                Follow
-              </button>
+              {currentUser?.id == user.id ? (
+                <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors">
+                  Edit Profile
+                </button>
+              ) : (
+                <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors">
+                  Follow
+                </button>
+              )}
             </div>
 
             {user.bio && <p className="text-white">{user.bio}</p>}

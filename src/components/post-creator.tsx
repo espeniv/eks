@@ -1,21 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useApp } from "@/context/app-context";
 
-export function PostCreator({
-  onPostCreated,
-}: {
-  onPostCreated: (postContent: string) => void;
-}) {
+export function PostCreator() {
+  const { addPost } = useApp();
   const [postContent, setPostContent] = useState("");
-
   const [remainingChars, setRemainingChars] = useState(140);
 
   const handlePostSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (postContent.trim()) {
-      onPostCreated(postContent);
+      addPost(postContent);
       setPostContent("");
+      setRemainingChars(140);
     }
   };
 

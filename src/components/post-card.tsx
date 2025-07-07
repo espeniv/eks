@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useApp } from "@/context/app-context";
 
 interface PostCardProps {
   post: Post;
@@ -15,6 +16,8 @@ export function PostCard({ post }: PostCardProps) {
   const [likeCount, setLikeCount] = useState(post.likes);
 
   const router = useRouter();
+
+  const { likePost } = useApp();
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -29,6 +32,7 @@ export function PostCard({ post }: PostCardProps) {
   const handleLikeClick = () => {
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
     setIsLiked(!isLiked);
+    likePost(post.id);
   };
 
   return (
