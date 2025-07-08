@@ -1,7 +1,18 @@
+"use client";
+
 import Link from "next/link";
-import { ProfileSelector } from "./profile-selector";
+import { useAuth } from "@/context/auth-context";
+import { useEffect, useState } from "react";
 
 export function Sidebar(props: { profileId: string }) {
+  const { signOut } = useAuth();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <aside className="w-64 p-4 border-r border-gray-800 flex flex-col h-screen">
       <div className="mb-8">
@@ -30,8 +41,16 @@ export function Sidebar(props: { profileId: string }) {
           👤 Profile
         </Link>
       </nav>
-      <div className="mt-auto">
-        <ProfileSelector profileId={props.profileId} />
+      <div className="mt-auto flex justify-center">
+        {/*<ProfileSelector profileId={props.profileId} />*/}
+        {mounted && (
+          <button
+            onClick={() => signOut()}
+            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 rounded-4xl text-sm"
+          >
+            Sign out
+          </button>
+        )}
       </div>
     </aside>
   );
