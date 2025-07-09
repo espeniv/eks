@@ -52,9 +52,7 @@ export default function RegisterPage() {
 
           <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500 rounded-md">
             <p className="text-sm text-white">
-              This is a simple application created for learning purposes. Email
-              confirmation is turned off, so you do not need to provide a real
-              email to create an account. Also avoid using any real password
+              Email confirmation is turned off. Avoid using any real password
               that you use for any other account.
             </p>
           </div>
@@ -87,7 +85,6 @@ export default function RegisterPage() {
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Username"
             />
-
             <input
               type="text"
               name="displayName"

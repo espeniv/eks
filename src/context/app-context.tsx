@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import { Post, User } from "@/lib/types";
+import { useAuth } from "./auth-context";
 
 interface AppContextType {
   posts: Post[];
@@ -9,22 +10,26 @@ interface AppContextType {
   likePost: (postId: string) => void;
   getPostById: (id: string) => Post | null;
   currentUser: User | null;
-  setCurrentUser: (user: User | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  //will be fetched from backend/auth later, sample for now
-  const [currentUser, setCurrentUser] = useState<User | null>({
-    id: "current-user",
-    username: "you",
-    displayName: "You",
-    avatar: undefined,
-    bio: "Just joined!",
-    followers: 0,
-    following: 0,
-  });
+  const { user } = useAuth();
+
+  //useMemo instead of setCurrentUser
+  const currentUser = useMemo(() => {
+    if (!user) return null;
+    return {
+      id: user.id,
+      username: user.user_metadata?.username || user.email,
+      displayName: user.user_metadata?.display_name || user.email,
+      avatar: user.user_metadata?.avatar,
+      bio: user.user_metadata?.bio || "",
+      followers: 0,
+      following: 0,
+    };
+  }, [user]);
 
   //Sample posts state, will also be implemnted properly later
   const [posts, setPosts] = useState<Post[]>([
@@ -85,14 +90,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return posts.find((post) => post.id === id) || null;
   };
 
-  // The value object that will be provided to all children
   const value: AppContextType = {
     posts,
     addPost,
     likePost,
     getPostById,
     currentUser,
-    setCurrentUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

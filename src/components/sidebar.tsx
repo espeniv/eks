@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
+import { useApp } from "@/context/app-context";
 
-export function Sidebar(props: { profileId: string }) {
+export function Sidebar() {
   const { signOut } = useAuth();
+  const { currentUser } = useApp();
 
   const [mounted, setMounted] = useState(false);
 
@@ -35,10 +37,10 @@ export function Sidebar(props: { profileId: string }) {
           💬 Messages
         </Link>
         <Link
-          href={`/profile/${props.profileId}`}
+          href={`/profile/${currentUser?.username}`}
           className="block p-3 rounded-full hover:bg-gray-900"
         >
-          👤 Profile
+          👤 Profile {/*currentUser ? `(${currentUser.username})` : null */}
         </Link>
       </nav>
       <div className="mt-auto flex justify-center">
