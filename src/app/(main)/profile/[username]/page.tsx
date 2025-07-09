@@ -3,42 +3,8 @@
 import { PostFeed } from "@/components/post-feed";
 import { User } from "@/lib/types";
 import { useApp } from "@/context/app-context";
-import { use } from "react";
-
-//Temp before endpoints/proper fetching
-function getUserByUsername(username: string): User | null {
-  const sampleUsers: { [key: string]: User } = {
-    johndoe: {
-      id: "user1",
-      username: "johndoe",
-      displayName: "John Doe",
-      avatar: undefined,
-      bio: "Full-stack developer passionate about React and Next.js 🚀",
-      followers: 1250,
-      following: 890,
-    },
-    janesmith: {
-      id: "user2",
-      username: "janesmith",
-      displayName: "Jane Smith",
-      avatar: undefined,
-      bio: "UI/UX Designer • Coffee enthusiast ☕ • Building beautiful experiences",
-      followers: 750,
-      following: 430,
-    },
-    testuser: {
-      id: "current-user",
-      username: "testuser",
-      displayName: "Test User",
-      avatar: undefined,
-      bio: "Testbio",
-      followers: 123,
-      following: 321,
-    },
-  };
-
-  return sampleUsers[username] || null;
-}
+import { use, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfilePage({
   params,
@@ -46,15 +12,62 @@ export default function ProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const user = getUserByUsername(username);
   const { currentUser } = useApp();
-  //Check if user exists
+
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("username", username)
+          .single();
+
+        if (error) {
+          setUser(null);
+        } else {
+          setUser({
+            id: data.id,
+            username: data.username,
+            displayName: data.display_name,
+            avatar: data.avatar_url,
+            bio: data.bio || "",
+            followers: data.followers_count || 0,
+            following: data.following_count || 0,
+          });
+        }
+      } catch {
+        console.error("Error fetching user from database");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [username]);
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl">
+        <div className="p-8 text-center">
+          <p className="text-gray-500">Loading profile..</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="max-w-2xl">
         <div className="p-8 text-center">
           <h1 className="text-2xl font-bold mb-4">User not found</h1>
-          <p className="text-gray-500">No user with username @{username}</p>
+          <p className="text-gray-500">
+            No profile found for user with username @{`${username}`}
+          </p>
         </div>
       </div>
     );
