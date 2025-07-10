@@ -24,7 +24,9 @@ export function PostFeed({ filterByUserId }: PostFeedProps) {
         ))
       ) : (
         <div className="p-8 text-center">
-          <p className="text-gray-500">No posts yet</p>
+          {filterByUserId ? (
+            <p className="text-gray-500">No posts from this user yet</p>
+          ) : null}
         </div>
       )}
     </div>
