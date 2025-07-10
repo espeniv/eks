@@ -8,7 +8,7 @@ export default function MainLayout({
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-4xl mx-auto flex">
-        <Sidebar profileId="testuser" />
+        <Sidebar />
         <main className="flex-1 border-r border-gray-800">{children}</main>
       </div>
     </div>

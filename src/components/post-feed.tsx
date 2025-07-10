@@ -5,14 +5,13 @@ import { useApp } from "@/context/app-context";
 import { Post } from "@/lib/types";
 
 interface PostFeedProps {
-  //Optional if i only want to see posts from a specific user (such as on profile page)
+  //For feed on profile page
   filterByUserId?: string;
 }
 
 export function PostFeed({ filterByUserId }: PostFeedProps) {
   const { posts } = useApp();
 
-  //If provided it will filter based on the userid
   const filteredPosts = filterByUserId
     ? posts.filter((post) => post.author.id === filterByUserId)
     : posts;

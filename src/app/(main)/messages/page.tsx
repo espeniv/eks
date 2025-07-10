@@ -1,3 +1,7 @@
 export default function MessagesPage() {
-  return <h1>MessagesPage</h1>;
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <h1>Messages Page</h1>
+    </div>
+  );
 }

@@ -53,7 +53,7 @@ export default function RegisterPage() {
           <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500 rounded-md">
             <p className="text-sm text-white">
               Email confirmation is turned off. Avoid using any real password
-              that you use for any other account.
+              that you use for any other accounts.
             </p>
           </div>
         </div>
