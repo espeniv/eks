@@ -1,6 +1,7 @@
 "use client";
 
 import { PostCard } from "@/components/post-card";
+import { CommentField } from "@/components/comment-field";
 import { useApp } from "@/context/app-context";
 import { use } from "react";
 
@@ -34,11 +35,11 @@ export default function PostPage({
 
       <div className="p-4">
         <div className="border-b border-gray-800 pb-4 mb-4 -mx-4 scroll-px-44">
-          <h2 className="text-lg font-bold">Replies</h2>
+          <CommentField />
         </div>
 
         {/* Dummy data for now */}
-        <div className="space-y-4">
+        <div className="space-y-4 ">
           <div className="flex space-x-3">
             <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
               👤

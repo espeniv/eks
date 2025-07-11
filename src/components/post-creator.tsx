@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useApp } from "@/context/app-context";
 
 export function PostCreator() {
-  const { addPost } = useApp();
+  const { addPost, currentUser } = useApp();
   const [postContent, setPostContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
 
@@ -32,7 +32,9 @@ export function PostCreator() {
           <textarea
             value={postContent}
             onChange={handlePostChange}
-            placeholder="What's happening?"
+            placeholder={`What's happening ${
+              currentUser?.displayName.split(" ")[0]
+            }?`}
             className="w-full bg-transparent text-xl placeholder-gray-500 resize-none outline-none border-none"
             rows={3}
           />
