@@ -6,12 +6,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useApp } from "@/context/app-context";
+import { formatRelativeTime } from "@/lib/utils";
 
 interface PostCardProps {
   post: Post;
+  singlePostView?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, singlePostView }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes);
 
@@ -37,7 +39,9 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <div
-      className="border-b border-gray-800 p-4 hover:bg-gray-950 cursor-pointer"
+      className={`border-b border-gray-800 p-4 ${
+        !singlePostView ? "hover:bg-gray-950 cursor-pointer" : null
+      }`}
       onClick={handleCardClick}
     >
       <div className="flex space-x-3">
@@ -65,20 +69,22 @@ export function PostCard({ post }: PostCardProps) {
               </Link>
               <span className="text-gray-500">@{post.author.username}</span>
               <span className="text-gray-500">·</span>
-              <span className="text-gray-500">{post.createdAt}</span>
+              <span className="text-gray-500">
+                {formatRelativeTime(post.createdAt)}
+              </span>
             </div>
 
             <p className="mt-1">{post.content}</p>
           </div>
 
           <button
-            className="flex items-center space-x-2 hover:text-red-400 hover:bg-red-400/10 p-2 rounded-full transition-colors ml-4"
+            className="flex items-center space-x-2 hover:text-orange-400 rounded-full transition-colors ml-4 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               handleLikeClick();
             }}
           >
-            <span>{isLiked ? "❤️" : "🤍"}</span>
+            <span>{isLiked ? "🧡" : "🤍"}</span>
             <span>{likeCount}</span>
           </button>
         </div>

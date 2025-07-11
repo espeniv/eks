@@ -47,7 +47,7 @@ export function PostCreator() {
             <button
               type="submit"
               disabled={!postContent.trim() || remainingChars < 0}
-              className="bg-blue-500 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 disabled:opacity-50"
+              className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold hover:bg-orange-400 disabled:opacity-50"
             >
               Post
             </button>

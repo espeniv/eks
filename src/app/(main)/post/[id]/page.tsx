@@ -30,7 +30,7 @@ export default function PostPage({
 
   return (
     <div className="max-w-2xl">
-      <PostCard post={post} />
+      <PostCard post={post} singlePostView={true} />
 
       <div className="p-4">
         <div className="border-b border-gray-800 pb-4 mb-4 -mx-4 scroll-px-44">
