@@ -15,7 +15,7 @@ interface PostCardProps {
 export function PostCard({ post, singlePostView }: PostCardProps) {
   const router = useRouter();
 
-  const { togglePostLike } = useApp();
+  const { togglePostLike, currentUser } = useApp();
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -28,7 +28,9 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
   };
 
   const handleLikeClick = () => {
-    togglePostLike(post.id);
+    if (currentUser?.id !== post.author.id) {
+      togglePostLike(post.id);
+    }
   };
 
   return (
@@ -72,7 +74,12 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
           </div>
 
           <button
-            className="flex items-center space-x-2 hover:text-orange-400 rounded-full transition-colors ml-4 cursor-pointer"
+            className={`flex items-center space-x-2 ${
+              //Check if currentuser is owner of a post to disable liking
+              currentUser?.id !== post.author.id
+                ? "hover:text-orange-400 rounded-full transition-colors ml-4 cursor-pointer"
+                : ""
+            }`}
             onClick={(e) => {
               e.stopPropagation();
               handleLikeClick();
