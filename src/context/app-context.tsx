@@ -189,16 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .select("id")
           .eq("post_id", postId)
           .eq("user_id", currentUser.id)
-          .single();
-
-        //Manual fetching of currentPost to get currentLikeCount to calculate and update to the new one
-        const { data: currentPost } = await supabase
-          .from("posts")
-          .select("likes_count")
-          .eq("id", postId)
-          .single();
-
-        const currentCount = currentPost?.likes_count || 0;
+          .maybeSingle();
 
         if (existingLike) {
           await supabase
@@ -207,25 +198,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
             .eq("post_id", postId)
             .eq("user_id", currentUser.id);
 
-          //Also needed to update count properly
+          const { data: currentPost } = await supabase
+            .from("posts")
+            .select("likes_count")
+            .eq("id", postId)
+            .single();
+
           await supabase
             .from("posts")
-            .update({ likes_count: Math.max(currentCount - 1, 0) })
+            .update({
+              likes_count: Math.max((currentPost?.likes_count || 1) - 1, 0),
+            })
             .eq("id", postId);
         } else {
           await supabase.from("likes").insert({
             post_id: postId,
             user_id: currentUser.id,
           });
+          const { data: currentPost } = await supabase
+            .from("posts")
+            .select("likes_count")
+            .eq("id", postId)
+            .single();
 
-          //Update count in posttable with new like aswell
           await supabase
             .from("posts")
-            .update({
-              likes_count: currentCount + 1,
-            })
+            .update({ likes_count: (currentPost?.likes_count || 0) + 1 })
             .eq("id", postId);
         }
+
         await fetchPosts();
       } catch (error) {
         console.error(error);
