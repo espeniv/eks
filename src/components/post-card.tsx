@@ -4,7 +4,6 @@ import { Post } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useApp } from "@/context/app-context";
 import { formatRelativeTime } from "@/lib/utils";
 
@@ -14,12 +13,9 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, singlePostView }: PostCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.likes);
-
   const router = useRouter();
 
-  const { likePost } = useApp();
+  const { togglePostLike } = useApp();
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -32,9 +28,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
   };
 
   const handleLikeClick = () => {
-    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
-    setIsLiked(!isLiked);
-    likePost(post.id);
+    togglePostLike(post.id);
   };
 
   return (
@@ -84,8 +78,8 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
               handleLikeClick();
             }}
           >
-            <span>{isLiked ? "🧡" : "🤍"}</span>
-            <span>{likeCount}</span>
+            <span>{post.isLiked ? "🧡" : "🤍"}</span>
+            <span>{post.likes}</span>
           </button>
         </div>
       </div>
