@@ -2,5 +2,4 @@ import { redirect } from "next/navigation";
 
 export default function Root() {
   redirect("/home");
-  //return <div>Root/LandingPage</div>;
 }

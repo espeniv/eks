@@ -40,7 +40,7 @@ export function PostCreator() {
           />
           <div className="flex justify-between items-center mt-4setPostContent(e.target.value)">
             <span
-              className={`text-sm ${
+              className={`text-sm select-none ${
                 remainingChars == 0 ? "text-red-500" : "text-gray-700"
               }`}
             >

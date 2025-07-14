@@ -4,9 +4,7 @@ export const formatRelativeTime = (timestamp: string) => {
   const postTime = new Date(timestamp);
   const diffInSeconds = Math.floor((now.getTime() - postTime.getTime()) / 1000);
 
-  if (diffInSeconds < 60) {
-    return `${diffInSeconds}s`;
-  } else if (diffInSeconds < 3600) {
+  if (diffInSeconds < 3600) {
     return `${Math.floor(diffInSeconds / 60)}m`;
   } else if (diffInSeconds < 86400) {
     return `${Math.floor(diffInSeconds / 3600)}h`;

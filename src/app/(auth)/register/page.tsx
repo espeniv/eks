@@ -50,12 +50,12 @@ export default function RegisterPage() {
         <div className="text-center">
           <h2 className="text-3xl font-bold text-white">Create account</h2>
 
-          <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500 rounded-md">
+          {/*<div className="mt-4 p-3 bg-orange-500/10 border border-orange-500 rounded-md">
             <p className="text-sm text-white">
               Email confirmation is turned off. Avoid using any real password
               that you use for any other accounts.
             </p>
-          </div>
+          </div>*/}
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
               href="/login"
               className="text-orange-500 hover:text-orange-400"
             >
-              Already have an account? Sign in
+              Already have an account?
             </Link>
           </div>
         </form>

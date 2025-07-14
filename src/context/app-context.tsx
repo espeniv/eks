@@ -17,6 +17,7 @@ interface AppContextType {
   addPost: (content: string) => void;
   likePost: (postId: string) => void;
   getPostById: (id: string) => Post | null;
+  togglePostLike: (postId: string) => void;
   currentUser: User | null;
 }
 
@@ -35,6 +36,7 @@ interface SupabasePost {
   content: string;
   created_at: string;
   likes_count: number | null;
+  is_liked_by_user: boolean;
   author_id: string;
   profiles: SupabaseProfile;
 }
@@ -68,13 +70,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const fetchPosts = async () => {
     try {
       const { data, error } = await supabase
-        .from("posts")
+        .from("posts_with_likes")
         .select(
           `
         id,
         content,
         created_at,
         likes_count,
+        is_liked_by_user,
         author_id,
         profiles!posts_author_id_fkey (
           id,
@@ -115,6 +118,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           following: post.profiles.following_count || 0,
         },
         likes: post.likes_count || 0,
+        isLiked: post.is_liked_by_user || false,
         createdAt: post.created_at,
       }));
       setPosts(formattedPosts);
@@ -185,12 +189,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return posts.find((post) => post.id === id) || null;
   };
 
+  const togglePostLike = async (postId: string) => {
+    if (currentUser) {
+      try {
+        const { data: existingLike } = await supabase
+          .from("likes")
+          .select("id")
+          .eq("post_id", postId)
+          .eq("user_id", currentUser.id)
+          .single();
+
+        if (existingLike) {
+          await supabase
+            .from("likes")
+            .delete()
+            .eq("post_id", postId)
+            .eq("user_id", currentUser.id);
+        } else {
+          await supabase.from("likes").insert({
+            post_id: postId,
+            user_id: currentUser.id,
+          });
+        }
+        await fetchPosts();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   const value: AppContextType = {
     posts,
     addPost,
     likePost,
     getPostById,
     currentUser,
+    togglePostLike,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
