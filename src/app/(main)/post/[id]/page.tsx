@@ -61,7 +61,14 @@ export default function PostPage({
                   {formatRelativeTime(comment.createdAt)}
                 </span>
               </div>
-              <p className="text-gray-200">{comment.content}</p>
+              <div className="flex row-auto justify-between">
+                <p className="text-gray-200">{comment.content}</p>
+                {/* comment.author.id === currentUser?.id ? (
+                  <button className="cursor-pointer px-3 py-1 text-xs text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 rounded-full transition-colors duration-200">
+                    Delete
+                  </button>
+                ) : null */}
+              </div>
             </div>
           ))}
 
