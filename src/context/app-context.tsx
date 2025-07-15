@@ -455,7 +455,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // ADD: Get comments for a specific post
   const getCommentsByPostId = (postId: string): Comment[] => {
     return comments.filter((comment) => comment.postId === postId);
   };

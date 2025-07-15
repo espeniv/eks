@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
 import { formatRelativeTime } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 interface PostCardProps {
   post: Post;
@@ -16,6 +18,31 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
   const router = useRouter();
 
   const { togglePostLike, isPostLikedByUser, currentUser } = useApp();
+
+  const [commentCount, setCommentCount] = useState<number | null>(null);
+
+  //To get comment count
+  useEffect(() => {
+    if (singlePostView) return;
+
+    const fetchCommentCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from("comments")
+          .select("*", { count: "exact", head: true })
+          .eq("post_id", post.id);
+
+        if (!error) {
+          setCommentCount(count || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching comment count:", error);
+      } finally {
+      }
+    };
+
+    fetchCommentCount();
+  }, [post.id, singlePostView]);
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -72,22 +99,29 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
 
             <p className="mt-1">{post.content}</p>
           </div>
-
-          <button
-            className={`flex items-center space-x-2 ${
-              //Check if currentuser is owner of a post to disable liking
-              currentUser?.id !== post.author.id
-                ? "hover:text-orange-400 rounded-full transition-colors ml-4 cursor-pointer"
-                : ""
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLikeClick();
-            }}
-          >
-            <span>{isPostLikedByUser(post.id) ? "🧡" : "🤍"}</span>
-            <span>{post.likes}</span>
-          </button>
+          <div>
+            <button
+              className={`flex items-center space-x-2 ${
+                //Check if currentuser is owner of a post to disable liking
+                currentUser?.id !== post.author.id
+                  ? "hover:text-orange-400 rounded-full transition-colors cursor-pointer"
+                  : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLikeClick();
+              }}
+            >
+              <span>{isPostLikedByUser(post.id) ? "🧡" : "🤍"}</span>
+              <span>{post.likes}</span>
+            </button>
+            {!singlePostView ? (
+              <div className="flex items-center space-x-2">
+                <span>💬</span>
+                <span>{commentCount}</span>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
