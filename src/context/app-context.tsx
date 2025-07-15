@@ -17,6 +17,7 @@ interface AppContextType {
   addPost: (content: string) => void;
   getPostById: (id: string) => Post | null;
   togglePostLike: (postId: string) => Promise<void>;
+  isPostLikedByUser: (postId: string) => boolean;
   currentUser: User | null;
 }
 
@@ -44,6 +45,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
 
   //useMemo instead of setCurrentUser
   const currentUser = useMemo(() => {
@@ -58,9 +61,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       following: 0,
     };
   }, [user]);
-
-  //Sample posts state, will also be implemnted properly later
-  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     fetchPosts();
@@ -117,10 +117,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
           following: post.profiles.following_count || 0,
         },
         likes: post.likes_count || 0,
-        isLiked: post.is_liked_by_user || false,
         createdAt: post.created_at,
       }));
       setPosts(formattedPosts);
+
+      //To get a set of currentusers liked posts for correct like tracking on frontend
+      if (currentUser) {
+        const postIds = formattedPosts.map((post) => post.id);
+        const { data: userLikesData } = await supabase
+          .from("likes")
+          .select("post_id")
+          .eq("user_id", currentUser.id)
+          .in("post_id", postIds);
+
+        const likedPostIds = new Set(
+          userLikesData?.map((like) => like.post_id) || []
+        );
+        setUserLikes(likedPostIds);
+      } else {
+        setUserLikes(new Set());
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -165,7 +181,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           following: currentUser.following,
         },
         likes: data.likes_count || 0,
-        isLiked: false,
         createdAt: data.created_at,
       };
 
@@ -181,6 +196,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return posts.find((post) => post.id === id) || null;
   };
 
+  //To see if provided postId is liked by current user
+  const isPostLikedByUser = (postId: string): boolean => {
+    if (!currentUser) return false;
+    return userLikes.has(postId);
+  };
+
   const togglePostLike = async (postId: string) => {
     if (currentUser) {
       try {
@@ -190,6 +211,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .eq("post_id", postId)
           .eq("user_id", currentUser.id)
           .maybeSingle();
+
+        const isCurrentlyLiked = !!existingLike;
+
+        setUserLikes((prev) => {
+          const newSet = new Set(prev);
+          if (isCurrentlyLiked) {
+            newSet.delete(postId);
+          } else {
+            newSet.add(postId);
+          }
+          return newSet;
+        });
 
         //Optimistic updating for instant UI changes
         setPosts((prevPosts) =>
@@ -250,12 +283,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  //Refetch likes again when user or posts changes
+  useEffect(() => {
+    if (currentUser && posts.length > 0) {
+      const postIds = posts.map((post) => post.id);
+      supabase
+        .from("likes")
+        .select("post_id")
+        .eq("user_id", currentUser.id)
+        .in("post_id", postIds)
+        .then(({ data }) => {
+          const likedPostIds = new Set(data?.map((like) => like.post_id) || []);
+          setUserLikes(likedPostIds);
+        });
+    } else {
+      setUserLikes(new Set());
+    }
+  }, [currentUser, posts]);
+
   const value: AppContextType = {
     posts,
     addPost,
     getPostById,
     currentUser,
     togglePostLike,
+    isPostLikedByUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

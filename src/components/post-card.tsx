@@ -15,7 +15,7 @@ interface PostCardProps {
 export function PostCard({ post, singlePostView }: PostCardProps) {
   const router = useRouter();
 
-  const { togglePostLike, currentUser } = useApp();
+  const { togglePostLike, isPostLikedByUser, currentUser } = useApp();
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -85,7 +85,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
               handleLikeClick();
             }}
           >
-            <span>{post.isLiked ? "🧡" : "🤍"}</span>
+            <span>{isPostLikedByUser(post.id) ? "🧡" : "🤍"}</span>
             <span>{post.likes}</span>
           </button>
         </div>

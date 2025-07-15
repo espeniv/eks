@@ -12,6 +12,5 @@ export interface Post {
   content: string;
   author: User;
   likes: number;
-  isLiked: boolean;
   createdAt: string;
 }
