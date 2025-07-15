@@ -14,7 +14,9 @@ import { supabase } from "@/lib/supabase";
 
 interface AppContextType {
   posts: Post[];
-  addPost: (content: string) => void;
+  addPost: (
+    content: string
+  ) => Promise<{ success: boolean; post?: Post; error?: Error }>;
   getPostById: (id: string) => Post | null;
   togglePostLike: (postId: string) => Promise<void>;
   isPostLikedByUser: (postId: string) => boolean;
@@ -64,7 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [currentUser]);
 
   const fetchPosts = async () => {
     try {
@@ -142,9 +144,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addPost = async (content: string) => {
-    if (!currentUser) return;
-
+  const addPost = async (
+    content: string
+  ): Promise<{ success: boolean; post?: Post; error?: Error }> => {
+    if (!currentUser) {
+      return { success: false, error: new Error("No user logged in") };
+    }
     try {
       const { data, error } = await supabase
         .from("posts")
@@ -188,7 +193,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { success: true, post: newPost };
     } catch (error) {
       console.error("Failed to create post:", error);
-      return { success: false, error };
+      return { success: false, error: error as Error };
     }
   };
 
@@ -230,7 +235,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             if (post.id === postId) {
               return {
                 ...post,
-                isLiked: !existingLike,
                 likes: existingLike ? post.likes - 1 : post.likes + 1,
               };
             }
@@ -273,8 +277,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             .update({ likes_count: (currentPost?.likes_count || 0) + 1 })
             .eq("id", postId);
         }
-
-        await fetchPosts();
       } catch (error) {
         console.error(error);
         //Revert in case of error
@@ -299,7 +301,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } else {
       setUserLikes(new Set());
     }
-  }, [currentUser, posts]);
+  }, [currentUser]);
 
   const value: AppContextType = {
     posts,
