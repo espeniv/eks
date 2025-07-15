@@ -19,7 +19,10 @@ export default function PostPage({
 
   useEffect(() => {
     if (id) {
-      fetchComments(id);
+      const timer = setTimeout(() => {
+        fetchComments(id);
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [id, fetchComments]);
 
@@ -45,9 +48,9 @@ export default function PostPage({
         <div className="border-b border-gray-800 pb-4 mb-4 -mx-4 scroll-px-44">
           <CommentField post={post} />
         </div>
-        <div className="space-y-4">
+        <div className="space-y-2">
           {comments.map((comment) => (
-            <div key={comment.id} className="bg-black rounded-lg p-4">
+            <div key={comment.id} className="bg-black p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="font-bold">{comment.author.displayName}</span>
                 <span className="text-gray-500">

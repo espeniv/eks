@@ -13,10 +13,10 @@ export function CommentField({ post }: CommentFieldProps) {
   const [commentContent, setCommentContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (commentContent.trim()) {
-      addComment(post.id, commentContent);
+      await addComment(post.id, commentContent);
       setCommentContent("");
       setRemainingChars(140);
     }
