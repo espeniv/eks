@@ -3,17 +3,25 @@
 import { PostCard } from "@/components/post-card";
 import { CommentField } from "@/components/comment-field";
 import { useApp } from "@/context/app-context";
-import { use } from "react";
+import { use, useEffect } from "react";
+import { formatRelativeTime } from "@/lib/utils";
 
 export default function PostPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { getPostById } = useApp();
+  const { getPostById, getCommentsByPostId, fetchComments } = useApp();
 
   const { id } = use(params);
   const post = getPostById(id);
+  const comments = getCommentsByPostId(id);
+
+  useEffect(() => {
+    if (id) {
+      fetchComments(id);
+    }
+  }, [id, fetchComments]);
 
   //Case if post is not found
   if (!post) {
@@ -35,25 +43,30 @@ export default function PostPage({
 
       <div className="p-4">
         <div className="border-b border-gray-800 pb-4 mb-4 -mx-4 scroll-px-44">
-          <CommentField />
+          <CommentField post={post} />
         </div>
-
-        {/* Dummy data for now */}
-        <div className="space-y-4 ">
-          <div className="flex space-x-3">
-            <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-              👤
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <span className="font-bold">Alice Johnson</span>
-                <span className="text-gray-500">@alicej</span>
+        <div className="space-y-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="bg-black rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="font-bold">{comment.author.displayName}</span>
+                <span className="text-gray-500">
+                  @{comment.author.username}
+                </span>
                 <span className="text-gray-500">·</span>
-                <span className="text-gray-500">1h</span>
+                <span className="text-gray-500">
+                  {formatRelativeTime(comment.createdAt)}
+                </span>
               </div>
-              <p className="mt-1">This is so helpful! Thanks for sharing 👍</p>
+              <p className="text-gray-200">{comment.content}</p>
             </div>
-          </div>
+          ))}
+
+          {comments.length === 0 && (
+            <div className="text-center text-gray-500 py-8">
+              No comments yet...
+            </div>
+          )}
         </div>
       </div>
     </div>

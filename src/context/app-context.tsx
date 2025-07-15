@@ -8,11 +8,12 @@ import {
   useMemo,
   useEffect,
 } from "react";
-import { Post, User } from "@/lib/types";
+import { Post, User, Comment } from "@/lib/types";
 import { useAuth } from "./auth-context";
 import { supabase } from "@/lib/supabase";
 
 interface AppContextType {
+  currentUser: User | null;
   posts: Post[];
   addPost: (
     content: string
@@ -20,7 +21,13 @@ interface AppContextType {
   getPostById: (id: string) => Post | null;
   togglePostLike: (postId: string) => Promise<void>;
   isPostLikedByUser: (postId: string) => boolean;
-  currentUser: User | null;
+  comments: Comment[];
+  fetchComments: (postId: string) => Promise<void>;
+  addComment: (
+    postId: string,
+    content: string
+  ) => Promise<{ success: boolean; comment?: Comment; error?: Error }>;
+  getCommentsByPostId: (postId: string) => Comment[];
 }
 
 interface SupabaseProfile {
@@ -49,6 +56,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
+  const [comments, setComments] = useState<Comment[]>([]);
 
   //useMemo instead of setCurrentUser
   const currentUser = useMemo(() => {
@@ -303,6 +311,155 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
+  //-----Comment functionality-----
+  const fetchComments = async (postId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select(
+          `
+        id,
+        content,
+        created_at,
+        post_id,
+        author_id
+      `
+        )
+        .eq("post_id", postId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        setComments((prev) =>
+          prev.filter((comment) => comment.postId !== postId)
+        );
+        return;
+      }
+
+      //Get author IDs
+      const authorIds = [...new Set(data.map((comment) => comment.author_id))];
+
+      //Fetch author profiles
+      const { data: authorsData, error: authorsError } = await supabase
+        .from("profiles")
+        .select(
+          `
+        id,
+        username,
+        display_name,
+        avatar_url,
+        bio,
+        followers_count,
+        following_count
+      `
+        )
+        .in("id", authorIds);
+
+      if (authorsError) throw authorsError;
+
+      //Map for authors
+      const authorsMap = new Map();
+      authorsData?.forEach((author) => {
+        authorsMap.set(author.id, {
+          id: author.id,
+          username: author.username,
+          displayName: author.display_name,
+          avatar: author.avatar_url,
+          bio: author.bio || "",
+          followers: author.followers_count || 0,
+          following: author.following_count || 0,
+        });
+      });
+
+      const formattedComments: Comment[] = data.map((comment) => ({
+        id: comment.id,
+        content: comment.content,
+        postId: comment.post_id,
+        author: authorsMap.get(comment.author_id) || {
+          id: comment.author_id,
+          username: "Unknown",
+          displayName: "Unknown User",
+          avatar: null,
+          bio: "",
+          followers: 0,
+          following: 0,
+        },
+        createdAt: comment.created_at,
+      }));
+
+      setComments((prev) => [
+        ...prev.filter((comment) => comment.postId !== postId),
+        ...formattedComments,
+      ]);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
+  const addComment = async (
+    postId: string,
+    content: string
+  ): Promise<{ success: boolean; comment?: Comment; error?: Error }> => {
+    if (!currentUser) {
+      return { success: false, error: new Error("No user logged in") };
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert({
+          content: content.trim(),
+          post_id: postId,
+          author_id: currentUser.id,
+          created_at: new Date().toISOString(),
+        })
+        .select(
+          `
+          id,
+          content,
+          created_at,
+          post_id,
+          author_id
+        `
+        )
+        .single();
+
+      if (error) {
+        console.error("Error creating comment:", error);
+        throw error;
+      }
+
+      const newComment: Comment = {
+        id: data.id,
+        content: data.content,
+        postId: data.post_id,
+        author: {
+          id: currentUser.id,
+          username: currentUser.username,
+          displayName: currentUser.displayName,
+          avatar: currentUser.avatar,
+          bio: currentUser.bio,
+          followers: currentUser.followers,
+          following: currentUser.following,
+        },
+        createdAt: data.created_at,
+      };
+
+      setComments((prev) => [...prev, newComment]);
+
+      return { success: true, comment: newComment };
+    } catch (error) {
+      console.error("Failed to create comment:", error);
+      return { success: false, error: error as Error };
+    }
+  };
+
+  // ADD: Get comments for a specific post
+  const getCommentsByPostId = (postId: string): Comment[] => {
+    return comments.filter((comment) => comment.postId === postId);
+  };
+
   const value: AppContextType = {
     posts,
     addPost,
@@ -310,6 +467,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     currentUser,
     togglePostLike,
     isPostLikedByUser,
+    comments,
+    fetchComments,
+    addComment,
+    getCommentsByPostId,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

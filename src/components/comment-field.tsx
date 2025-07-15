@@ -1,17 +1,22 @@
 "use client";
 
+import { useApp } from "@/context/app-context";
+import { Post } from "@/lib/types";
 import { useState } from "react";
-//import { useApp } from "@/context/app-context";
 
-export function CommentField() {
-  //const { addComment } = useApp();
+interface CommentFieldProps {
+  post: Post;
+}
+
+export function CommentField({ post }: CommentFieldProps) {
+  const { addComment } = useApp();
   const [commentContent, setCommentContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (commentContent.trim()) {
-      //addComment(commentContent);
+      addComment(post.id, commentContent);
       setCommentContent("");
       setRemainingChars(140);
     }
