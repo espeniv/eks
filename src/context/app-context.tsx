@@ -16,7 +16,7 @@ interface AppContextType {
   posts: Post[];
   addPost: (content: string) => void;
   getPostById: (id: string) => Post | null;
-  togglePostLike: (postId: string) => void;
+  togglePostLike: (postId: string) => Promise<void>;
   currentUser: User | null;
 }
 
@@ -191,6 +191,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .eq("user_id", currentUser.id)
           .maybeSingle();
 
+        //Optimistic updating for instant UI changes
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.id === postId) {
+              return {
+                ...post,
+                isLiked: !existingLike,
+                likes: existingLike ? post.likes - 1 : post.likes + 1,
+              };
+            }
+            return post;
+          })
+        );
+
         if (existingLike) {
           await supabase
             .from("likes")
@@ -230,6 +244,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await fetchPosts();
       } catch (error) {
         console.error(error);
+        //Revert in case of error
+        await fetchPosts();
       }
     }
   };
