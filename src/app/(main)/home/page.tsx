@@ -49,7 +49,7 @@ export default function HomePage() {
         <div className="flex">
           <button
             onClick={() => setActiveTab("all")}
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${
+            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
               activeTab === "all"
                 ? "text-white border-orange-500"
                 : "text-gray-400 hover:text-gray-300 border-transparent"
@@ -59,7 +59,7 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => setActiveTab("following")}
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${
+            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
               activeTab === "following"
                 ? "text-white border-orange-500"
                 : "text-gray-400 hover:text-gray-300 border-transparent"

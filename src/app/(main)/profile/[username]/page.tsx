@@ -82,7 +82,7 @@ export default function ProfilePage({
       <div className="p-4">
         <div className="relative">
           <div className="flex justify-center pt-8 pb-6">
-            <div className="w-32 h-32 bg-gray-600 rounded-full border-4 border-black flex items-center justify-center">
+            <div className="w-32 h-32 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center">
               {user.avatar ? (
                 <img
                   src={user.avatar}

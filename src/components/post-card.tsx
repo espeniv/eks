@@ -69,7 +69,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
     >
       <div className="flex space-x-3">
         <Link href={`/profile/${post.author.username}`}>
-          <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center hover:opacity-80">
+          <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center hover:opacity-80">
             {post.author.avatar ? (
               <Image
                 src={post.author.avatar}
