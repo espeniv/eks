@@ -1,7 +1,6 @@
 "use client";
 
 import { Post } from "@/lib/types";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
@@ -71,13 +70,9 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
         <Link href={`/profile/${post.author.username}`}>
           <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center hover:opacity-80">
             {post.author.avatar ? (
-              <Image
-                src={post.author.avatar}
-                alt={post.author.displayName}
-                className="w-full h-full rounded-full object-cover"
-              />
+              <span className="text-3xl">{post.author.avatar}</span>
             ) : (
-              <span className="text-xl">👤</span>
+              <span className="text-3xl">👤</span>
             )}
           </div>
         </Link>

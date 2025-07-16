@@ -133,13 +133,9 @@ export default function ProfilePage({
           <div className="flex justify-center pt-8 pb-6">
             <div className="w-32 h-32 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center">
               {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.displayName}
-                  className="w-full h-full rounded-full object-cover"
-                />
+                <span className="text-7xl">{user.avatar}</span>
               ) : (
-                <span className="text-4xl">👤</span>
+                <span className="text-7xl">👤</span>
               )}
             </div>
           </div>
