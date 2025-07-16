@@ -17,6 +17,8 @@ export default function ProfilePage({
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,7 +34,7 @@ export default function ProfilePage({
         if (error) {
           setUser(null);
         } else {
-          setUser({
+          const userData = {
             id: data.id,
             username: data.username,
             displayName: data.display_name,
@@ -40,7 +42,11 @@ export default function ProfilePage({
             bio: data.bio || "",
             followers: data.followers_count || 0,
             following: data.following_count || 0,
-          });
+          };
+
+          setUser(userData);
+
+          await fetchFollowCounts(userData.id);
         }
       } catch {
         console.error("Error fetching user from database");
@@ -48,8 +54,50 @@ export default function ProfilePage({
         setLoading(false);
       }
     };
+    const fetchFollowCounts = async (userId: string) => {
+      try {
+        //Get followers
+        const { count: followers } = await supabase
+          .from("follows")
+          .select("*", { count: "exact", head: true })
+          .eq("following_id", userId);
+
+        //Get following count
+        const { count: following } = await supabase
+          .from("follows")
+          .select("*", { count: "exact", head: true })
+          .eq("follower_id", userId);
+
+        setFollowerCount(followers || 0);
+        setFollowingCount(following || 0);
+      } catch (error) {
+        console.error("Error fetching follow counts:", error);
+      }
+    };
     fetchUser();
   }, [username]);
+
+  //Needed to trigger useEffect below for instant followers count change on unfollow
+  const isUserFollowed = isFollowing(user?.id || "");
+
+  useEffect(() => {
+    if (user) {
+      const fetchFollowCounts = async () => {
+        try {
+          const { count: followers } = await supabase
+            .from("follows")
+            .select("*", { count: "exact", head: true })
+            .eq("following_id", user.id);
+
+          setFollowerCount(followers || 0);
+        } catch (error) {
+          console.error("Error fetching follow counts:", error);
+        }
+      };
+
+      fetchFollowCounts();
+    }
+  }, [user, isUserFollowed]);
 
   if (loading) {
     return (
@@ -102,7 +150,7 @@ export default function ProfilePage({
                 <h1 className="text-2xl font-bold">{user.displayName}</h1>
                 <p className="text-gray-500">@{user.username}</p>
               </div>
-              {currentUser?.id == user.id ? (
+              {currentUser?.id === user.id ? (
                 <Link href={`/profile/${username}/edit`}>
                   <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
                     Edit Profile
@@ -124,14 +172,14 @@ export default function ProfilePage({
               <p className="text-gray-500">(No bio has been set)</p>
             )}
 
-            <div className="flex gap-6 text-sm">
+            <div className="flex gap-6 text-sm select-none">
               <span>
-                <span className="font-bold text-white">{user.following}</span>
-                <span className="text-gray-500"> Following</span>
+                <span className="font-bold text-white">{followingCount}</span>
+                <span className="text-gray-500 ml-1"> Following</span>
               </span>
               <span>
-                <span className="font-bold text-white">{user.followers}</span>
-                <span className="text-gray-500"> Followers</span>
+                <span className="font-bold text-white">{followerCount}</span>
+                <span className="text-gray-500 ml-1"> Followers</span>
               </span>
             </div>
           </div>
