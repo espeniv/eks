@@ -131,13 +131,27 @@ export default function ProfilePage({
       <div className="p-4">
         <div className="relative">
           <div className="flex justify-center pt-8 pb-6">
-            <div className="w-32 h-32 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center">
-              {user.avatar ? (
-                <span className="text-7xl">{user.avatar}</span>
-              ) : (
-                <span className="text-7xl">👤</span>
-              )}
-            </div>
+            <Link
+              href={
+                currentUser?.id === user.id
+                  ? `/profile/${username}/edit`
+                  : `/profile/${username}`
+              }
+            >
+              <div
+                className={`w-32 h-32 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center cursor-default ${
+                  currentUser?.id === user.id
+                    ? "hover:opacity-80 cursor-pointer"
+                    : null
+                }`}
+              >
+                {user.avatar ? (
+                  <span className="text-7xl">{user.avatar}</span>
+                ) : (
+                  <span className="text-7xl">👤</span>
+                )}
+              </div>
+            </Link>
           </div>
 
           <div className="space-y-2">
@@ -165,7 +179,11 @@ export default function ProfilePage({
             {user.bio ? (
               <p className="text-white">{user.bio}</p>
             ) : (
-              <p className="text-gray-500">(No bio has been set)</p>
+              <p className="text-gray-500">
+                {currentUser?.id === user.id
+                  ? "(Click edit profile to set a bio)"
+                  : "(No bio has been set)"}
+              </p>
             )}
 
             <div className="flex gap-6 text-sm select-none">
