@@ -5,6 +5,7 @@ import { User } from "@/lib/types";
 import { useApp } from "@/context/app-context";
 import { use, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 export default function ProfilePage({
   params,
@@ -102,9 +103,11 @@ export default function ProfilePage({
                 <p className="text-gray-500">@{user.username}</p>
               </div>
               {currentUser?.id == user.id ? (
-                <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors">
-                  Edit Profile
-                </button>
+                <Link href={`/profile/${username}/edit`}>
+                  <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
+                    Edit Profile
+                  </button>
+                </Link>
               ) : (
                 <button
                   onClick={handleFollowClick}
@@ -115,7 +118,11 @@ export default function ProfilePage({
               )}
             </div>
 
-            {user.bio && <p className="text-white">{user.bio}</p>}
+            {user.bio ? (
+              <p className="text-white">{user.bio}</p>
+            ) : (
+              <p className="text-gray-500">(No bio has been set)</p>
+            )}
 
             <div className="flex gap-6 text-sm">
               <span>
