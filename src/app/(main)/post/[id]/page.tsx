@@ -5,6 +5,7 @@ import { CommentField } from "@/components/comment-field";
 import { useApp } from "@/context/app-context";
 import { use, useEffect } from "react";
 import { formatRelativeTime } from "@/lib/utils";
+import Link from "next/link";
 
 export default function PostPage({
   params,
@@ -52,10 +53,14 @@ export default function PostPage({
           {comments.map((comment) => (
             <div key={comment.id} className="bg-black p-4">
               <div className="flex items-center space-x-2 mb-2">
-                <span className="font-bold">{comment.author.displayName}</span>
-                <span className="text-gray-500">
-                  @{comment.author.username}
-                </span>
+                <Link href={`/profile/${comment.author.username}`}>
+                  <span className="font-bold hover:underline">
+                    {comment.author.displayName}
+                  </span>
+                  <span className="ml-3 text-gray-500">
+                    @{comment.author.username}
+                  </span>
+                </Link>
                 <span className="text-gray-500">·</span>
                 <span className="text-gray-500">
                   {formatRelativeTime(comment.createdAt)}

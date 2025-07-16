@@ -28,6 +28,10 @@ interface AppContextType {
     content: string
   ) => Promise<{ success: boolean; comment?: Comment; error?: Error }>;
   getCommentsByPostId: (postId: string) => Comment[];
+  followingPosts: Post[];
+  fetchFollowingPosts: () => Promise<void>;
+  isFollowing: (userId: string) => boolean;
+  toggleFollow: (userId: string) => Promise<void>;
 }
 
 interface SupabaseProfile {
@@ -55,8 +59,10 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [followingPosts, setFollowingPosts] = useState<Post[]>([]);
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Comment[]>([]);
+  const [following, setFollowing] = useState<Set<string>>(new Set());
 
   //useMemo instead of setCurrentUser
   const currentUser = useMemo(() => {
@@ -459,6 +465,102 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return comments.filter((comment) => comment.postId === postId);
   };
 
+  //-----Following functionality------
+  const fetchFollowingPosts = async () => {
+    if (!currentUser) {
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("posts_with_likes")
+        .select(
+          `
+          id,
+          content,
+          created_at,
+          likes_count,
+          is_liked_by_user,
+          author_id,
+          profiles!posts_author_id_fkey (
+            id,
+            username,
+            display_name,
+            avatar_url,
+            bio,
+            followers_count,
+            following_count
+          )
+        `
+        )
+        .in("author_id", Array.from(following))
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      //Similar to fetchPosts
+      const typedData = data as unknown as SupabasePost[];
+      const formattedPosts: Post[] = typedData.map((post) => ({
+        id: post.id,
+        content: post.content,
+        author: {
+          id: post.profiles.id,
+          username: post.profiles.username,
+          displayName: post.profiles.display_name,
+          avatar: post.profiles.avatar_url,
+          bio: post.profiles.bio || "",
+          followers: post.profiles.followers_count || 0,
+          following: post.profiles.following_count || 0,
+        },
+        likes: post.likes_count || 0,
+        createdAt: post.created_at,
+      }));
+
+      setFollowingPosts(formattedPosts);
+    } catch (error) {
+      console.error("Error fetching following posts:", error);
+    }
+  };
+
+  //Simple check for following
+  const isFollowing = (userId: string): boolean => {
+    return following.has(userId);
+  };
+
+  //Toggle follow
+  const toggleFollow = async (userId: string) => {
+    if (!currentUser) return;
+
+    try {
+      const isCurrentlyFollowing = following.has(userId);
+
+      if (isCurrentlyFollowing) {
+        //Unfollow
+        await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", currentUser.id)
+          .eq("following_id", userId);
+
+        setFollowing((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(userId);
+          return newSet;
+        });
+      } else {
+        //Follow
+        await supabase.from("follows").insert({
+          follower_id: currentUser.id,
+          following_id: userId,
+        });
+
+        setFollowing((prev) => new Set(prev).add(userId));
+      }
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+    }
+  };
+
   const value: AppContextType = {
     posts,
     addPost,
@@ -470,6 +572,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     fetchComments,
     addComment,
     getCommentsByPostId,
+    followingPosts,
+    fetchFollowingPosts,
+    isFollowing,
+    toggleFollow,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -19,7 +19,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
 
   const { togglePostLike, isPostLikedByUser, currentUser } = useApp();
 
-  const [commentCount, setCommentCount] = useState<number | null>(null);
+  const [commentCount, setCommentCount] = useState<number | null>(0);
 
   //To get comment count
   useEffect(() => {
@@ -112,7 +112,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
                 handleLikeClick();
               }}
             >
-              <span>{isPostLikedByUser(post.id) ? "🧡" : "🤍"}</span>
+              <span>{isPostLikedByUser(post.id) ? "❤️" : "🤍"}</span>
               <span>{post.likes}</span>
             </button>
             {!singlePostView ? (
