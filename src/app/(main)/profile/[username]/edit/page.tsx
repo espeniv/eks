@@ -12,7 +12,7 @@ export default function EditProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const { currentUser } = useApp();
+  const { currentUser, refreshUserInPosts } = useApp();
   const router = useRouter();
 
   const [bio, setBio] = useState("");
@@ -38,6 +38,16 @@ export default function EditProfilePage({
         .eq("id", currentUser.id);
 
       if (error) throw error;
+
+      const updatedUser = {
+        ...currentUser,
+        bio: bio.trim(),
+        avatar: selectedEmoji,
+      };
+
+      //To instantly see changes made after editing
+      refreshUserInPosts(updatedUser);
+
       router.push(`/profile/${username}`);
     } catch (error) {
       console.error("Error updating profile:", error);

@@ -32,6 +32,7 @@ interface AppContextType {
   fetchFollowingPosts: () => Promise<void>;
   isFollowing: (userId: string) => boolean;
   toggleFollow: (userId: string) => Promise<void>;
+  refreshUserInPosts: (updatedUser: User) => void;
 }
 
 interface SupabaseProfile {
@@ -174,6 +175,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
+  };
+
+  //Required to immediately see changes after editing user profile
+  const refreshUserInPosts = (updatedUser: User) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.author.id === updatedUser.id
+          ? { ...post, author: updatedUser }
+          : post
+      )
+    );
+
+    setFollowingPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.author.id === updatedUser.id
+          ? { ...post, author: updatedUser }
+          : post
+      )
+    );
   };
 
   const addPost = async (
@@ -594,6 +614,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     fetchFollowingPosts,
     isFollowing,
     toggleFollow,
+    refreshUserInPosts,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
