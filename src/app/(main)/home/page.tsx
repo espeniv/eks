@@ -2,19 +2,28 @@
 
 import { PostCreator } from "@/components/post-creator";
 import { PostFeed } from "@/components/post-feed";
+import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
+  const { fetchFollowingPosts } = useApp();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"all" | "following">("all");
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (user) {
+      fetchFollowingPosts();
+    }
+  }, [user, fetchFollowingPosts]);
 
   if (loading) {
     return (
@@ -36,7 +45,31 @@ export default function HomePage() {
         <h1 className="text-xl font-bold">Home</h1>
       </div>
       <PostCreator />
-      <PostFeed />
+      <div className="border-b border-gray-800">
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${
+              activeTab === "all"
+                ? "text-white border-orange-500"
+                : "text-gray-400 hover:text-gray-300 border-transparent"
+            }`}
+          >
+            All Posts
+          </button>
+          <button
+            onClick={() => setActiveTab("following")}
+            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${
+              activeTab === "following"
+                ? "text-white border-orange-500"
+                : "text-gray-400 hover:text-gray-300 border-transparent"
+            }`}
+          >
+            Following
+          </button>
+        </div>
+      </div>
+      <PostFeed filterByFollowing={activeTab === "following"} />
     </div>
   );
 }

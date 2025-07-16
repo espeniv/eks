@@ -3,18 +3,27 @@
 import { PostCard } from "@/components/post-card";
 import { useApp } from "@/context/app-context";
 import { Post } from "@/lib/types";
+import { useMemo } from "react";
 
 interface PostFeedProps {
-  //For feed on profile page
   filterByUserId?: string;
+  filterByFollowing?: boolean;
 }
 
-export function PostFeed({ filterByUserId }: PostFeedProps) {
-  const { posts } = useApp();
+export function PostFeed({ filterByUserId, filterByFollowing }: PostFeedProps) {
+  const { posts, followingPosts } = useApp();
 
-  const filteredPosts = filterByUserId
-    ? posts.filter((post) => post.author.id === filterByUserId)
-    : posts;
+  const filteredPosts = useMemo(() => {
+    if (filterByFollowing) {
+      return followingPosts;
+    }
+
+    if (filterByUserId) {
+      return posts.filter((post) => post.author.id === filterByUserId);
+    }
+
+    return posts;
+  }, [posts, followingPosts, filterByUserId, filterByFollowing]);
 
   return (
     <div>
@@ -24,9 +33,13 @@ export function PostFeed({ filterByUserId }: PostFeedProps) {
         ))
       ) : (
         <div className="p-8 text-center">
-          {filterByUserId ? (
-            <p className="text-gray-500">No posts from this user yet</p>
-          ) : null}
+          <p className="text-gray-500">
+            {filterByFollowing
+              ? "No posts from people you follow yet"
+              : filterByUserId
+              ? "No posts from this user yet"
+              : "No posts yet"}
+          </p>
         </div>
       )}
     </div>

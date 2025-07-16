@@ -80,6 +80,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchPosts();
+    fetchFollowingPosts();
+    const loadFollowingData = async () => {
+      if (!currentUser) return;
+
+      try {
+        const { data } = await supabase
+          .from("follows")
+          .select("following_id")
+          .eq("follower_id", currentUser.id);
+
+        const followingIds = new Set(data?.map((f) => f.following_id) || []);
+        setFollowing(followingIds);
+      } catch (error) {
+        console.error("Error loading following:", error);
+      }
+    };
+
+    loadFollowingData();
   }, [currentUser]);
 
   const fetchPosts = async () => {

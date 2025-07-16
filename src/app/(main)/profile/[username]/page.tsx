@@ -12,7 +12,7 @@ export default function ProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const { currentUser } = useApp();
+  const { currentUser, toggleFollow, isFollowing } = useApp();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,6 +73,10 @@ export default function ProfilePage({
     );
   }
 
+  const handleFollowClick = () => {
+    toggleFollow(user.id);
+  };
+
   return (
     <div className="max-w-2xl">
       <div className="p-4">
@@ -102,8 +106,11 @@ export default function ProfilePage({
                   Edit Profile
                 </button>
               ) : (
-                <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors">
-                  Follow
+                <button
+                  onClick={handleFollowClick}
+                  className="border cursor-pointer border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors"
+                >
+                  {!isFollowing(user.id) ? "Follow" : "Unfollow"}
                 </button>
               )}
             </div>
