@@ -12,7 +12,7 @@ export default function EditProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const { currentUser, refreshUserInPosts } = useApp();
+  const { currentUser, refreshUserInPosts, refreshCurrentUser } = useApp();
   const router = useRouter();
 
   const [bio, setBio] = useState("");
@@ -50,6 +50,7 @@ export default function EditProfilePage({
       };
 
       //To instantly see changes made after editing
+      refreshCurrentUser();
       refreshUserInPosts(updatedUser);
 
       router.push(`/profile/${username}`);

@@ -33,6 +33,7 @@ interface AppContextType {
   isFollowing: (userId: string) => boolean;
   toggleFollow: (userId: string) => Promise<void>;
   refreshUserInPosts: (updatedUser: User) => void;
+  refreshCurrentUser: () => void;
 }
 
 interface SupabaseProfile {
@@ -114,6 +115,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
       following: profileData.following_count || 0,
     };
   }, [user, profileData]);
+
+  const refreshCurrentUser = async () => {
+    if (!user) return;
+
+    try {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select(
+          `
+          id,
+          username,
+          display_name,
+          avatar_url,
+          bio,
+          followers_count,
+          following_count
+        `
+        )
+        .eq("id", user.id)
+        .single();
+
+      if (!error && profile) {
+        setProfileData(profile);
+      }
+    } catch (error) {
+      console.error("Error refreshing profile:", error);
+    }
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -651,6 +680,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isFollowing,
     toggleFollow,
     refreshUserInPosts,
+    refreshCurrentUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
