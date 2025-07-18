@@ -59,7 +59,7 @@ export default function PostPage({
               <div className="flex items-center space-x-2 mb-2">
                 <Link href={`/profile/${comment.author.username}`}>
                   <span className="font-bold hover:underline cursor-pointer">
-                    {comment.author.displayName}
+                    {`${comment.author.avatar}   ${comment.author.displayName}`}
                   </span>
                   <span className="ml-3 text-gray-500">
                     @{comment.author.username}
