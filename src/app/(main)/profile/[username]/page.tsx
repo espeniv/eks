@@ -127,82 +127,83 @@ export default function ProfilePage({
   };
 
   return (
-    <div className="max-w-2xl">
-      <div className="p-4">
-        <div className="relative">
-          <div className="flex justify-center pt-8 pb-6">
-            <Link
-              href={
-                currentUser?.id === user.id
-                  ? `/profile/${username}/edit`
-                  : `/profile/${username}`
-              }
-            >
-              <div
-                className={`w-32 h-32 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center cursor-default ${
+    <div className="h-screen flex flex-col max-w-2xl">
+      <div className="flex-shrink-0 bg-black border-b border-gray-800">
+        <div className="p-4">
+          <div className="relative">
+            <div className="flex justify-center pt-8 pb-6">
+              <Link
+                href={
                   currentUser?.id === user.id
-                    ? "hover:opacity-80 cursor-pointer"
-                    : null
-                }`}
+                    ? `/profile/${username}/edit`
+                    : `/profile/${username}`
+                }
               >
-                {user.avatar ? (
-                  <span className="text-7xl">{user.avatar}</span>
-                ) : (
-                  <span className="text-7xl">👤</span>
-                )}
-              </div>
-            </Link>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold">{user.displayName}</h1>
-                <p className="text-gray-500">@{user.username}</p>
-              </div>
-              {currentUser?.id === user.id ? (
-                <Link href={`/profile/${username}/edit`}>
-                  <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
-                    Edit Profile
-                  </button>
-                </Link>
-              ) : (
-                <button
-                  onClick={handleFollowClick}
-                  className="border cursor-pointer border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors"
+                <div
+                  className={`w-32 h-32 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center cursor-default ${
+                    currentUser?.id === user.id
+                      ? "hover:opacity-80 cursor-pointer"
+                      : null
+                  }`}
                 >
-                  {!isFollowing(user.id) ? "Follow" : "Unfollow"}
-                </button>
-              )}
+                  {user.avatar ? (
+                    <span className="text-7xl">{user.avatar}</span>
+                  ) : (
+                    <span className="text-7xl">👤</span>
+                  )}
+                </div>
+              </Link>
             </div>
 
-            {user.bio ? (
-              <p className="text-white">{user.bio}</p>
-            ) : (
-              <p className="text-gray-500">
-                {currentUser?.id === user.id
-                  ? "(Click edit profile to set a bio)"
-                  : "(No bio has been set)"}
-              </p>
-            )}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-2xl font-bold">{user.displayName}</h1>
+                  <p className="text-gray-500">@{user.username}</p>
+                </div>
+                {currentUser?.id === user.id ? (
+                  <Link href={`/profile/${username}/edit`}>
+                    <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
+                      Edit Profile
+                    </button>
+                  </Link>
+                ) : (
+                  <button
+                    onClick={handleFollowClick}
+                    className="border cursor-pointer border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors"
+                  >
+                    {!isFollowing(user.id) ? "Follow" : "Unfollow"}
+                  </button>
+                )}
+              </div>
 
-            <div className="flex gap-6 text-sm select-none">
-              <span>
-                <span className="font-bold text-white">{followingCount}</span>
-                <span className="text-gray-500 ml-1"> Following</span>
-              </span>
-              <span>
-                <span className="font-bold text-white">{followerCount}</span>
-                <span className="text-gray-500 ml-1"> Followers</span>
-              </span>
+              {user.bio ? (
+                <p className="text-white">{user.bio}</p>
+              ) : (
+                <p className="text-gray-500">
+                  {currentUser?.id === user.id
+                    ? "(Click edit profile to set a bio)"
+                    : "(No bio has been set)"}
+                </p>
+              )}
+
+              <div className="flex gap-6 text-sm select-none">
+                <span>
+                  <span className="font-bold text-white">{followingCount}</span>
+                  <span className="text-gray-500 ml-1"> Following</span>
+                </span>
+                <span>
+                  <span className="font-bold text-white">{followerCount}</span>
+                  <span className="text-gray-500 ml-1"> Followers</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div className="border-b border-gray-800" />
-
-      <PostFeed filterByUserId={user.id} />
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <PostFeed filterByUserId={user.id} />
+      </div>
     </div>
   );
 }

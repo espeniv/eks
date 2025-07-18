@@ -42,19 +42,23 @@ export default function PostPage({
   }
 
   return (
-    <div className="max-w-2xl">
-      <PostCard post={post} singlePostView={true} />
-
-      <div className="p-4">
-        <div className="border-b border-gray-800 pb-4 mb-4 -mx-4 scroll-px-44">
+    <div className="h-screen flex flex-col max-w-2xl">
+      <div className="flex-shrink-0 bg-black">
+        <PostCard post={post} singlePostView={true} />
+        <div className="border-b border-gray-800 p-4">
           <CommentField post={post} />
         </div>
-        <div className="space-y-2">
+      </div>
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="space-y-2 p-4">
           {comments.map((comment) => (
-            <div key={comment.id} className="bg-black p-4">
+            <div
+              key={comment.id}
+              className="bg-black p-4 border-b border-gray-800/50"
+            >
               <div className="flex items-center space-x-2 mb-2">
                 <Link href={`/profile/${comment.author.username}`}>
-                  <span className="font-bold hover:underline">
+                  <span className="font-bold hover:underline cursor-pointer">
                     {comment.author.displayName}
                   </span>
                   <span className="ml-3 text-gray-500">
@@ -66,13 +70,14 @@ export default function PostPage({
                   {formatRelativeTime(comment.createdAt)}
                 </span>
               </div>
-              <div className="flex row-auto justify-between">
-                <p className="text-gray-200">{comment.content}</p>
-                {/* comment.author.id === currentUser?.id ? (
-                  <button className="cursor-pointer px-3 py-1 text-xs text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 rounded-full transition-colors duration-200">
+              <div className="flex justify-between items-start">
+                <p className="text-gray-200 flex-1">{comment.content}</p>
+                {/*
+                {{comment.author.id === currentUser?.id && (
+                  <button className="cursor-pointer px-3 py-1 text-xs text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 rounded-full transition-colors duration-200 ml-4 flex-shrink-0">
                     Delete
                   </button>
-                ) : null */}
+                )} */}
               </div>
             </div>
           ))}

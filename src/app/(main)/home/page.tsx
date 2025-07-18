@@ -45,9 +45,7 @@ export default function HomePage() {
         <div className="border-b border-gray-800 p-4 flex justify-between items-center">
           <h1 className="text-xl font-bold">Home</h1>
         </div>
-
         <PostCreator />
-
         <div className="border-b border-gray-800">
           <div className="flex">
             <button
