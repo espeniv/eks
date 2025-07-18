@@ -23,6 +23,10 @@ export default function EditProfilePage({
       router.push(`/profile/${username}`);
       return;
     }
+    if (currentUser) {
+      setBio(currentUser.bio || "");
+      setSelectedEmoji(currentUser.avatar || "👤");
+    }
   }, [currentUser, username, router]);
 
   const handleSave = async () => {

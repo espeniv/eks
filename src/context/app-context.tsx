@@ -64,20 +64,56 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Comment[]>([]);
   const [following, setFollowing] = useState<Set<string>>(new Set());
+  const [profileData, setProfileData] = useState<SupabaseProfile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        setProfileData(null);
+        return;
+      }
+
+      try {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select(
+            `
+            id,
+            username,
+            display_name,
+            avatar_url,
+            bio,
+            followers_count,
+            following_count
+          `
+          )
+          .eq("id", user.id)
+          .single();
+
+        if (!error && profile) {
+          setProfileData(profile);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   //useMemo instead of setCurrentUser
   const currentUser = useMemo(() => {
-    if (!user) return null;
+    if (!user || !profileData) return null;
     return {
-      id: user.id,
-      username: user.user_metadata?.username || user.email,
-      displayName: user.user_metadata?.display_name || user.email,
-      avatar: user.user_metadata?.avatar,
-      bio: user.user_metadata?.bio || "",
-      followers: 0,
-      following: 0,
+      id: profileData.id,
+      username: profileData.username,
+      displayName: profileData.display_name,
+      avatar: profileData.avatar_url,
+      bio: profileData.bio || "",
+      followers: profileData.followers_count || 0,
+      following: profileData.following_count || 0,
     };
-  }, [user]);
+  }, [user, profileData]);
 
   useEffect(() => {
     fetchPosts();
