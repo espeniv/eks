@@ -96,7 +96,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
           </div>
           <div>
             <button
-              className={`flex items-center space-x-2 ${
+              className={`flex items-center space-x-2 ml-4 pr-3 ${
                 //Check if currentuser is owner of a post to disable liking
                 currentUser?.id !== post.author.id
                   ? "hover:text-orange-400 rounded-full transition-colors cursor-pointer"
@@ -111,7 +111,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
               <span>{post.likes}</span>
             </button>
             {!singlePostView ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 ml-4 pr-3">
                 <span>💬</span>
                 <span>{commentCount}</span>
               </div>

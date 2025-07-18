@@ -35,8 +35,12 @@ export default function MainLayout({
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-4xl mx-auto flex">
-        <Sidebar />
-        <main className="flex-1 border-r border-gray-800">{children}</main>
+        <div className="fixed top-0 h-screen z-10">
+          <Sidebar />
+        </div>
+        <main className="flex-1 border-r border-gray-800 pl-64 h-screen">
+          {children}
+        </main>
       </div>
     </div>
   );

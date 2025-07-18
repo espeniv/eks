@@ -40,36 +40,42 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="border-b border-gray-800 p-4 sticky top-0 bg-black flex justify-between items-center">
-        <h1 className="text-xl font-bold">Home</h1>
-      </div>
-      <PostCreator />
-      <div className="border-b border-gray-800">
-        <div className="flex">
-          <button
-            onClick={() => setActiveTab("all")}
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
-              activeTab === "all"
-                ? "text-white border-orange-500"
-                : "text-gray-400 hover:text-gray-300 border-transparent"
-            }`}
-          >
-            All Posts
-          </button>
-          <button
-            onClick={() => setActiveTab("following")}
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
-              activeTab === "following"
-                ? "text-white border-orange-500"
-                : "text-gray-400 hover:text-gray-300 border-transparent"
-            }`}
-          >
-            Following
-          </button>
+    <div className="h-screen flex flex-col">
+      <div className="flex-shrink-0 bg-black border-b border-gray-800">
+        <div className="border-b border-gray-800 p-4 flex justify-between items-center">
+          <h1 className="text-xl font-bold">Home</h1>
+        </div>
+
+        <PostCreator />
+
+        <div className="border-b border-gray-800">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
+                activeTab === "all"
+                  ? "text-white border-orange-500"
+                  : "text-gray-400 hover:text-gray-300 border-transparent"
+              }`}
+            >
+              All Posts
+            </button>
+            <button
+              onClick={() => setActiveTab("following")}
+              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
+                activeTab === "following"
+                  ? "text-white border-orange-500"
+                  : "text-gray-400 hover:text-gray-300 border-transparent"
+              }`}
+            >
+              Following
+            </button>
+          </div>
         </div>
       </div>
-      <PostFeed filterByFollowing={activeTab === "following"} />
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <PostFeed filterByFollowing={activeTab === "following"} />
+      </div>
     </div>
   );
 }
