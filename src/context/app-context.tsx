@@ -7,6 +7,7 @@ import {
   ReactNode,
   useMemo,
   useEffect,
+  useCallback,
 } from "react";
 import { Post, User, Comment } from "@/lib/types";
 import { useAuth } from "./auth-context";
@@ -569,12 +570,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   //-----Following functionality------
-  const fetchFollowingPosts = async () => {
-    if (!currentUser) {
-      return;
-    }
+  const fetchFollowingPosts = useCallback(async () => {
+    if (!currentUser) return;
+
     try {
-      const { data, error } = await supabase
+      // Get following user IDs
+      const { data: followingData } = await supabase
+        .from("follows")
+        .select("following_id")
+        .eq("follower_id", currentUser.id);
+
+      if (!followingData || followingData.length === 0) {
+        setFollowingPosts([]);
+        return;
+      }
+
+      const followingIds = followingData.map((f) => f.following_id);
+
+      // Fetch posts from followed users
+      const { data: posts } = await supabase
         .from("posts_with_likes")
         .select(
           `
@@ -584,7 +598,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           likes_count,
           is_liked_by_user,
           author_id,
-          profiles!posts_author_id_fkey (
+          profiles!posts_author_id_fkey(
             id,
             username,
             display_name,
@@ -595,35 +609,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
           )
         `
         )
-        .in("author_id", Array.from(following))
+        .in("author_id", followingIds)
         .order("created_at", { ascending: false })
         .limit(100);
 
-      if (error) throw error;
+      if (posts) {
+        const transformedPosts: Post[] = (
+          posts as unknown as SupabasePost[]
+        ).map((post) => ({
+          id: post.id,
+          content: post.content,
+          createdAt: post.created_at,
+          likes: post.likes_count || 0,
+          author: {
+            id: post.profiles.id,
+            username: post.profiles.username,
+            displayName: post.profiles.display_name,
+            avatar: post.profiles.avatar_url,
+            bio: post.profiles.bio || "",
+            followers: post.profiles.followers_count || 0,
+            following: post.profiles.following_count || 0,
+          },
+        }));
 
-      //Similar to fetchPosts
-      const typedData = data as unknown as SupabasePost[];
-      const formattedPosts: Post[] = typedData.map((post) => ({
-        id: post.id,
-        content: post.content,
-        author: {
-          id: post.profiles.id,
-          username: post.profiles.username,
-          displayName: post.profiles.display_name,
-          avatar: post.profiles.avatar_url,
-          bio: post.profiles.bio || "",
-          followers: post.profiles.followers_count || 0,
-          following: post.profiles.following_count || 0,
-        },
-        likes: post.likes_count || 0,
-        createdAt: post.created_at,
-      }));
-
-      setFollowingPosts(formattedPosts);
+        setFollowingPosts(transformedPosts);
+      }
     } catch (error) {
       console.error("Error fetching following posts:", error);
     }
-  };
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      fetchFollowingPosts();
+    }
+  }, [currentUser?.id, fetchFollowingPosts]);
 
   //Simple check for following
   const isFollowing = (userId: string): boolean => {

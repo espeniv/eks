@@ -25,7 +25,7 @@ export default function PostPage({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [id, fetchComments]);
+  }, [id]);
 
   //Case if post is not found
   if (!post) {
