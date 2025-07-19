@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
+import { Unbounded } from "next/font/google";
 import Link from "next/link";
+
+const unbounded = Unbounded();
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,7 +36,11 @@ export default function LoginPage() {
     <div className="min-h-screen w-full flex items-center justify-center bg-black">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-white">Eks</h2>
+          <h2
+            className={`text-6xl font-bold ${unbounded.className} text-white`}
+          >
+            Eks
+          </h2>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

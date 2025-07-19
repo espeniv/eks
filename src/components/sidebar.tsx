@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
 import { useApp } from "@/context/app-context";
+import { Unbounded } from "next/font/google";
+
+const unbounded = Unbounded();
 
 export function Sidebar() {
   const { signOut } = useAuth();
@@ -18,7 +21,9 @@ export function Sidebar() {
   return (
     <aside className="w-64 p-4 border-r border-gray-800 flex flex-col h-screen">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold ml-3">Eks</h1>
+        <h1 className={`text-4xl ${unbounded.className} font-bold ml-3`}>
+          Eks
+        </h1>
       </div>
       <nav className="space-y-2">
         <Link href="/home" className="block p-3 rounded-full hover:bg-gray-900">
@@ -29,12 +34,6 @@ export function Sidebar() {
           className="block p-3 rounded-full hover:bg-gray-900"
         >
           🔔 Notifications
-        </Link>
-        <Link
-          href="/messages"
-          className="block p-3 rounded-full hover:bg-gray-900"
-        >
-          💬 Messages
         </Link>
         <Link
           href={`/profile/${currentUser?.username}`}
