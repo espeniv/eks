@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 import { useApp } from "@/context/app-context";
 import { Unbounded } from "next/font/google";
 
-const unbounded = Unbounded();
+const unbounded = Unbounded({
+  subsets: ["latin"],
+});
 
 export function Sidebar() {
   const { signOut } = useAuth();

@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { Unbounded } from "next/font/google";
 import Link from "next/link";
 
-const unbounded = Unbounded();
+const unbounded = Unbounded({
+  subsets: ["latin"],
+});
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
