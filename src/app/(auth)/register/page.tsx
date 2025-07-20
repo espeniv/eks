@@ -48,19 +48,28 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-white">Create account</h2>
-
-          {/*<div className="mt-4 p-3 bg-orange-500/10 border border-orange-500 rounded-md">
-            <p className="text-sm text-white">
-              Email confirmation is turned off. Avoid using any real password
-              that you use for any other accounts.
+          <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500 rounded-md">
+            <p className="text-sm text-white mb-3">
+              If you do not want to create your own account you can log into the
+              application as a guest by using the credentials
             </p>
-          </div>*/}
+            <div className="text-sm">Email: guest@guest.com</div>
+            <div className="text-sm mb-4">Password: guestpassword</div>
+
+            <div className="flex justify-center">
+              <button
+                onClick={() => router.back()}
+                className="px-3 py-1 bg-orange-500 hover:bg-orange-400 text-white text-sm rounded transition-colors"
+              >
+                Go back to login
+              </button>
+            </div>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded">
+            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded flex justify-center">
               {error}
             </div>
           )}

@@ -115,7 +115,8 @@ export default function ProfilePage({
         <div className="p-8 text-center">
           <h1 className="text-2xl font-bold mb-4">User not found</h1>
           <p className="text-gray-500">
-            No profile found for user with username @{`${username}`}
+            No profile found for user with username @
+            {`${username.toLowerCase()}`}
           </p>
         </div>
       </div>
@@ -159,7 +160,9 @@ export default function ProfilePage({
               <div className="flex justify-between items-center">
                 <div>
                   <h1 className="text-2xl font-bold">{user.displayName}</h1>
-                  <p className="text-gray-500">@{user.username}</p>
+                  <p className="text-gray-500">
+                    @{user.username.toLowerCase()}
+                  </p>
                 </div>
                 {currentUser?.id === user.id ? (
                   <Link href={`/profile/${username}/edit`}>

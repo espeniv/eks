@@ -85,7 +85,7 @@ export default function LoginPage() {
               href="/register"
               className="text-orange-500 hover:text-orange-400"
             >
-              Create a new account
+              Dont have an account yet? Sign up here
             </Link>
           </div>
         </form>

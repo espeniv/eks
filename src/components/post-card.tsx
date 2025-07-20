@@ -85,7 +85,9 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
                   {post.author.displayName}
                 </span>
               </Link>
-              <span className="text-gray-500">@{post.author.username}</span>
+              <span className="text-gray-500">
+                @{post.author.username.toLowerCase()}
+              </span>
               <span className="text-gray-500">·</span>
               <span className="text-gray-500">
                 {formatRelativeTime(post.createdAt)}

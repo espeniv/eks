@@ -19,16 +19,6 @@ export default function MainLayout({
     }
   }, [user, loading, router]);
 
-  if (loading) {
-    return (
-      <div className="max-w-2xl">
-        <div className="p-8 text-center">
-          <p className="text-gray-500">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (!user) {
     return null;
   }
