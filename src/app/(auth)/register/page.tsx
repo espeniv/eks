@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     username: "",
     displayName: "",
   });
@@ -24,10 +25,35 @@ export default function RegisterPage() {
     });
   };
 
+  const validateForm = () => {
+    if (formData.username.length < 3) {
+      setError("Username must be at least 3 characters long");
+      return false;
+    }
+    if (formData.displayName.length < 3) {
+      setError("Display name must be at least 3 characters long");
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
 
     const { error } = await signUp(formData.email, formData.password, {
       username: formData.username,
@@ -43,11 +69,14 @@ export default function RegisterPage() {
     setLoading(false);
   };
 
-  //Todo: Validation for all fields not just email format
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
+          <h2 className="text-4xl font-bold font-unbounded text-white mb-6">
+            Create account
+          </h2>
+
           <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500 rounded-md">
             <p className="text-sm text-white mb-3">
               If you do not want to create your own account you can log into the
@@ -57,12 +86,12 @@ export default function RegisterPage() {
             <div className="text-sm mb-4">Password: guestpassword</div>
 
             <div className="flex justify-center">
-              <button
-                onClick={() => router.back()}
+              <Link
+                href="/login"
                 className="px-3 py-1 bg-orange-500 hover:bg-orange-400 text-white text-sm rounded transition-colors"
               >
-                Go back to login
-              </button>
+                ← Back to login
+              </Link>
             </div>
           </div>
         </div>
@@ -89,29 +118,43 @@ export default function RegisterPage() {
               type="text"
               name="username"
               required
+              minLength={3}
               value={formData.username}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Username"
+              placeholder="Username (min. 3 characters)"
             />
+
             <input
               type="text"
               name="displayName"
               required
+              minLength={3}
               value={formData.displayName}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Display Name"
+              placeholder="Display Name (min. 3 characters)"
             />
 
             <input
               type="password"
               name="password"
               required
+              minLength={6}
               value={formData.password}
               onChange={handleChange}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Password"
+              placeholder="Password (min. 6 characters)"
+            />
+
+            <input
+              type="password"
+              name="confirmPassword"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Confirm Password"
             />
           </div>
 
