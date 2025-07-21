@@ -707,55 +707,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   //-------Notifications------
-
   const fetchNotifications = async () => {
     if (!currentUser) {
       setNotifications([]);
       setUnreadNotificationCount(0);
       return;
     }
-
     try {
-      const { data, error } = await supabase
-        .from("notifications")
-        .select(
-          `
-          id,
-          type,
-          message,
-          is_read,
-          created_at,
-          post_id,
-          sender_id,
-          profiles!notifications_sender_id_fkey (
-            id,
-            username,
-            display_name,
-            avatar_url
-          )
-        `
-        )
-        .eq("recipient_id", currentUser.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
+      //First, get notifications without the join
+      const { data: notificationsData, error: notificationsError } =
+        await supabase
+          .from("notifications")
+          .select("*")
+          .eq("recipient_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      if (error) throw error;
+      if (notificationsError) throw notificationsError;
 
-      const formattedNotifications: Notification[] = (data || []).map(
-        (notif) => ({
-          id: notif.id,
-          type: notif.type,
-          message: notif.message,
-          isRead: notif.is_read,
-          createdAt: notif.created_at,
-          postId: notif.post_id,
-          sender: {
-            id: notif.profiles[0].id,
-            username: notif.profiles[0].username,
-            displayName: notif.profiles[0].display_name,
-            avatar: notif.profiles[0].avatar_url,
-          },
-        })
+      if (!notificationsData || notificationsData.length === 0) {
+        setNotifications([]);
+        setUnreadNotificationCount(0);
+        return;
+      }
+
+      //Get unique sender IDs
+      const senderIds = [...new Set(notificationsData.map((n) => n.sender_id))];
+
+      //Then get sender profiles separately
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .in("id", senderIds);
+
+      if (profilesError) throw profilesError;
+
+      //Create a map for easy lookup
+      const profilesMap = new Map();
+      profilesData?.forEach((profile) => {
+        profilesMap.set(profile.id, profile);
+      });
+
+      const formattedNotifications: Notification[] = notificationsData.map(
+        (notif) => {
+          const senderProfile = profilesMap.get(notif.sender_id);
+          return {
+            id: notif.id,
+            type: notif.type,
+            message: notif.message,
+            isRead: notif.is_read,
+            createdAt: notif.created_at,
+            postId: notif.post_id,
+            sender: {
+              id: notif.sender_id,
+              username: senderProfile?.username || "Unknown",
+              displayName: senderProfile?.display_name || "Unknown User",
+              avatar: senderProfile?.avatar_url || null,
+            },
+          };
+        }
       );
 
       setNotifications(formattedNotifications);
@@ -808,10 +818,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (currentUser) {
       fetchNotifications();
 
-      //Check for new notifications every 30s
+      //Check for new notifications every 60s
       const interval = setInterval(() => {
         fetchNotifications();
-      }, 30000);
+      }, 60000);
 
       return () => {
         clearInterval(interval);
