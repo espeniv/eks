@@ -359,6 +359,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         const isCurrentlyLiked = !!existingLike;
 
+        const post = getPostById(postId);
+        const postAuthorId = post?.author.id;
+
         setUserLikes((prev) => {
           const newSet = new Set(prev);
           if (isCurrentlyLiked) {
@@ -416,6 +419,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
             .from("posts")
             .update({ likes_count: (currentPost?.likes_count || 0) + 1 })
             .eq("id", postId);
+
+          //Notification creation on like
+          if (postAuthorId && postAuthorId !== currentUser.id) {
+            await supabase.from("notifications").insert({
+              recipient_id: postAuthorId,
+              sender_id: currentUser.id,
+              post_id: postId,
+              type: "like",
+              message: "liked your post",
+              is_read: false,
+            });
+          }
         }
       } catch (error) {
         console.error(error);
@@ -580,6 +595,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setComments((prev) => [...prev, newComment]);
 
+      const post = getPostById(postId);
+      const postAuthorId = post?.author.id;
+
+      //Notification creation on comment
+      if (postAuthorId && postAuthorId !== currentUser.id) {
+        await supabase.from("notifications").insert({
+          recipient_id: postAuthorId,
+          sender_id: currentUser.id,
+          post_id: postId,
+          type: "comment",
+          message: "commented on your post",
+          is_read: false,
+        });
+      }
+
       return { success: true, comment: newComment };
     } catch (error) {
       console.error("Failed to create comment:", error);
@@ -700,6 +730,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
 
         setFollowing((prev) => new Set(prev).add(userId));
+
+        //Notification creation on follow
+        if (userId !== currentUser.id) {
+          await supabase.from("notifications").insert({
+            recipient_id: userId,
+            sender_id: currentUser.id,
+            type: "follow",
+            message: "started following you",
+            is_read: false,
+          });
+        }
       }
     } catch (error) {
       console.error("Error toggling follow:", error);
