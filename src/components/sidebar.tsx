@@ -52,10 +52,10 @@ export function Sidebar() {
           {unreadNotificationCount > 0 && (
             <span className="ml-2 align-middle">
               <span
-                className="inline-flex items-center justify-center bg-orange-500 text-black text-[10px] font-bold rounded-full w-3.5 h-3.5 mb-2"
-                style={{ minWidth: 10 }}
+                className="inline-flex items-center justify-center bg-orange-500 text-black text-[10px] font-bold rounded-full w-2.5 h-2.5 mb-0.25"
+                style={{ minWidth: 8 }}
               >
-                {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+                {/*unreadNotificationCount > 99 ? "99+" : unreadNotificationCount */}
               </span>
             </span>
           )}

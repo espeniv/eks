@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -62,10 +63,28 @@ export default function RegisterPage() {
 
     if (error) {
       setError(error.message);
-    } else {
-      router.push("/home");
+      setLoading(false);
+      return;
     }
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      await supabase.from("notifications").insert([
+        {
+          recipient_id: user.id,
+          sender_id: user.id,
+          type: "welcome",
+          message: "Welcome, and thanks for checking out my project! 🎉",
+          is_read: false,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+    }
+
+    router.push("/home");
     setLoading(false);
   };
 
