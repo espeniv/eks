@@ -36,6 +36,7 @@ interface AppContextType {
   refreshUserInPosts: (updatedUser: User) => void;
   refreshCurrentUser: () => void;
   notifications: Notification[];
+  unreadNotificationCount: number;
   fetchNotifications: () => Promise<void>;
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
@@ -86,6 +87,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [following, setFollowing] = useState<Set<string>>(new Set());
   const [profileData, setProfileData] = useState<SupabaseProfile | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -703,6 +706,122 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  //-------Notifications------
+
+  const fetchNotifications = async () => {
+    if (!currentUser) {
+      setNotifications([]);
+      setUnreadNotificationCount(0);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select(
+          `
+          id,
+          type,
+          message,
+          is_read,
+          created_at,
+          post_id,
+          sender_id,
+          profiles!notifications_sender_id_fkey (
+            id,
+            username,
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("recipient_id", currentUser.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      const formattedNotifications: Notification[] = (data || []).map(
+        (notif) => ({
+          id: notif.id,
+          type: notif.type,
+          message: notif.message,
+          isRead: notif.is_read,
+          createdAt: notif.created_at,
+          postId: notif.post_id,
+          sender: {
+            id: notif.profiles[0].id,
+            username: notif.profiles[0].username,
+            displayName: notif.profiles[0].display_name,
+            avatar: notif.profiles[0].avatar_url,
+          },
+        })
+      );
+
+      setNotifications(formattedNotifications);
+      setUnreadNotificationCount(
+        formattedNotifications.filter((n) => !n.isRead).length
+      );
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const markNotificationAsRead = async (notificationId: string) => {
+    try {
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("id", notificationId);
+
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === notificationId ? { ...notif, isRead: true } : notif
+        )
+      );
+      setUnreadNotificationCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const markAllNotificationsAsRead = async () => {
+    if (!currentUser) return;
+
+    try {
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("recipient_id", currentUser.id)
+        .eq("is_read", false);
+
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, isRead: true }))
+      );
+      setUnreadNotificationCount(0);
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchNotifications();
+
+      //Check for new notifications every 30s
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 30000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    } else {
+      setNotifications([]);
+      setUnreadNotificationCount(0);
+    }
+  }, [currentUser]);
+
   const value: AppContextType = {
     posts,
     addPost,
@@ -720,6 +839,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toggleFollow,
     refreshUserInPosts,
     refreshCurrentUser,
+    notifications,
+    unreadNotificationCount,
+    fetchNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
