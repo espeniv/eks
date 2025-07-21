@@ -12,7 +12,7 @@ const unbounded = Unbounded({
 
 export function Sidebar() {
   const { signOut } = useAuth();
-  const { currentUser } = useApp();
+  const { currentUser, unreadNotificationCount } = useApp();
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   const handleLogout = () => {
@@ -46,10 +46,21 @@ export function Sidebar() {
         </Link>
         <Link
           href="/notifications"
-          className="block p-3 rounded-full hover:bg-gray-900"
+          className="block p-3 rounded-full hover:bg-gray-900 relative"
         >
           🔔 Notifications
+          {unreadNotificationCount > 0 && (
+            <span className="ml-2 align-middle">
+              <span
+                className="inline-flex items-center justify-center bg-orange-500 text-black text-[10px] font-bold rounded-full w-3.5 h-3.5 mb-2"
+                style={{ minWidth: 10 }}
+              >
+                {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+              </span>
+            </span>
+          )}
         </Link>
+
         <Link
           href={`/profile/${currentUser?.username}`}
           className="block p-3 rounded-full hover:bg-gray-900"

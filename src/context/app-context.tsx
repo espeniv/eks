@@ -846,9 +846,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .eq("recipient_id", currentUser.id)
         .eq("is_read", false);
 
-      setNotifications((prev) =>
+      //Commented out to avoid automatically clearing new mark of notifications on frontend, should only cleared as read on next fetch/render
+      /* setNotifications((prev) =>
         prev.map((notif) => ({ ...notif, isRead: true }))
-      );
+      ); */
       setUnreadNotificationCount(0);
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
