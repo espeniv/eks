@@ -35,6 +35,10 @@ interface AppContextType {
   toggleFollow: (userId: string) => Promise<void>;
   refreshUserInPosts: (updatedUser: User) => void;
   refreshCurrentUser: () => void;
+  notifications: Notification[];
+  fetchNotifications: () => Promise<void>;
+  markNotificationAsRead: (notificationId: string) => Promise<void>;
+  markAllNotificationsAsRead: () => Promise<void>;
 }
 
 interface SupabaseProfile {
@@ -55,6 +59,21 @@ interface SupabasePost {
   is_liked_by_user: boolean;
   author_id: string;
   profiles: SupabaseProfile;
+}
+
+interface Notification {
+  id: string;
+  sender: {
+    id: string;
+    username: string;
+    displayName: string;
+    avatar: string | null;
+  };
+  type: "like" | "comment" | "follow";
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  postId?: string;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
