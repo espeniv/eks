@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
           <h2
-            className={`text-6xl font-bold ${unbounded.className} text-white`}
+            className={`text-6xl font-bold ${unbounded.className} select-none text-white`}
           >
             Eks
           </h2>

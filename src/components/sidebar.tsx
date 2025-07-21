@@ -34,7 +34,9 @@ export function Sidebar() {
   return (
     <aside className="w-64 p-4 border-r border-gray-800 flex flex-col h-screen">
       <div className="mb-8">
-        <h1 className={`text-4xl ${unbounded.className} font-bold ml-3`}>
+        <h1
+          className={`text-4xl ${unbounded.className} font-bold ml-3 select-none`}
+        >
           Eks
         </h1>
       </div>
