@@ -3,6 +3,7 @@
 import { useApp } from "@/context/app-context";
 import Link from "next/link";
 import { useEffect } from "react";
+import { formatRelativeTime } from "@/lib/utils";
 
 export default function NotificationsPage() {
   const { notifications, markAllNotificationsAsRead } = useApp();
@@ -20,91 +21,23 @@ export default function NotificationsPage() {
         <div className="border-b border-gray-800 p-4 flex justify-between items-center">
           <h1 className="text-xl font-bold">Notifications</h1>
         </div>
-        <div>
-          {notifications.map((notification) => {
-            if (notification.type === "like") {
-              return (
-                <Link
-                  key={notification.id}
-                  href={`/post/${notification.postId}`}
-                >
-                  <div className="p-4 py-6 border-b border-gray-800">
-                    {!notification.isRead && (
-                      <svg
-                        className="inline-block mr-2"
-                        width="8"
-                        height="8"
-                        viewBox="0 0 8 8"
-                        fill="orange"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style={{ verticalAlign: "middle" }}
-                      >
-                        <circle cx="4" cy="4" r="4" />
-                      </svg>
-                    )}
-                    <span
-                      className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.location.href = `/profile/${notification.sender.username}`;
-                      }}
-                      tabIndex={0}
-                      role="link"
-                    >
-                      {notification.sender.avatar}{" "}
-                      {notification.sender.displayName}
-                    </span>
-                    liked your post.
-                  </div>
-                </Link>
-              );
-            }
-            if (notification.type === "comment") {
-              return (
-                <Link
-                  key={notification.id}
-                  href={`/post/${notification.postId}`}
-                >
-                  <div className="p-4 py-6 border-b border-gray-800">
-                    {!notification.isRead && (
-                      <svg
-                        className="inline-block mr-2"
-                        width="8"
-                        height="8"
-                        viewBox="0 0 8 8"
-                        fill="orange"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style={{ verticalAlign: "middle" }}
-                      >
-                        <circle cx="4" cy="4" r="4" />
-                      </svg>
-                    )}
-                    <span className="font-semibold hover:underline cursor-pointer">
-                      <span
-                        className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          window.location.href = `/profile/${notification.sender.username}`;
-                        }}
-                        tabIndex={0}
-                        role="link"
-                      >
-                        {notification.sender.avatar}{" "}
-                        {notification.sender.displayName}
-                      </span>
-                    </span>
-                    commented on your post.
-                  </div>
-                </Link>
-              );
-            }
-            if (notification.type === "follow") {
-              return (
+      </div>
+      <div className="mt-4 flex-1 overflow-y-auto custom-scrollbar bg-black">
+        {notifications.length === 0 && (
+          <div className="text-center text-gray-500 py-8">
+            No notifications yet...
+          </div>
+        )}
+        {notifications.map((notification) => {
+          if (notification.type === "like") {
+            return (
+              <Link key={notification.id} href={`/post/${notification.postId}`}>
                 <div
-                  key={notification.id}
-                  className="p-4 py-6 border-b border-gray-800"
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                    !notification.isRead
+                      ? "border-orange-400"
+                      : "border-gray-900"
+                  }`}
                 >
                   {!notification.isRead && (
                     <svg
@@ -132,13 +65,101 @@ export default function NotificationsPage() {
                     {notification.sender.avatar}{" "}
                     {notification.sender.displayName}
                   </span>
-                  started following you.
+                  liked your post.
+                  <span className="ml-auto text-xs text-gray-600">
+                    {formatRelativeTime(notification.createdAt)}
+                  </span>
                 </div>
-              );
-            }
-            return null;
-          })}
-        </div>
+              </Link>
+            );
+          }
+          if (notification.type === "comment") {
+            return (
+              <Link key={notification.id} href={`/post/${notification.postId}`}>
+                <div
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                    !notification.isRead
+                      ? "border-orange-400"
+                      : "border-gray-900"
+                  }`}
+                >
+                  {!notification.isRead && (
+                    <svg
+                      className="inline-block mr-2"
+                      width="8"
+                      height="8"
+                      viewBox="0 0 8 8"
+                      fill="orange"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ verticalAlign: "middle" }}
+                    >
+                      <circle cx="4" cy="4" r="4" />
+                    </svg>
+                  )}
+                  <span className="font-semibold hover:underline cursor-pointer">
+                    <span
+                      className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = `/profile/${notification.sender.username}`;
+                      }}
+                      tabIndex={0}
+                      role="link"
+                    >
+                      {notification.sender.avatar}{" "}
+                      {notification.sender.displayName}
+                    </span>
+                  </span>
+                  commented on your post.
+                  <span className="ml-auto text-xs text-gray-600">
+                    {formatRelativeTime(notification.createdAt)}
+                  </span>
+                </div>
+              </Link>
+            );
+          }
+          if (notification.type === "follow") {
+            return (
+              <div
+                key={notification.id}
+                className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                  !notification.isRead ? "border-orange-400" : "border-gray-900"
+                }`}
+              >
+                {!notification.isRead && (
+                  <svg
+                    className="inline-block mr-2"
+                    width="8"
+                    height="8"
+                    viewBox="0 0 8 8"
+                    fill="orange"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ verticalAlign: "middle" }}
+                  >
+                    <circle cx="4" cy="4" r="4" />
+                  </svg>
+                )}
+                <span
+                  className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = `/profile/${notification.sender.username}`;
+                  }}
+                  tabIndex={0}
+                  role="link"
+                >
+                  {notification.sender.avatar} {notification.sender.displayName}
+                </span>
+                started following you.
+                <span className="ml-auto text-xs text-gray-600">
+                  {formatRelativeTime(notification.createdAt)}
+                </span>
+              </div>
+            );
+          }
+        })}
       </div>
     </div>
   );
