@@ -27,7 +27,8 @@ interface AppContextType {
   fetchComments: (postId: string) => Promise<void>;
   addComment: (
     postId: string,
-    content: string
+    content: string,
+    parentCommentId?: string | null
   ) => Promise<{ success: boolean; comment?: Comment; error?: Error }>;
   getCommentsByPostId: (postId: string) => Comment[];
   followingPosts: Post[];
@@ -469,12 +470,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .from("comments")
         .select(
           `
-        id,
-        content,
-        created_at,
-        post_id,
-        author_id
-      `
+      id,
+      content,
+      created_at,
+      post_id,
+      author_id,
+      parent_comment_id
+    `
         )
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
@@ -488,28 +490,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      //Get author IDs
       const authorIds = [...new Set(data.map((comment) => comment.author_id))];
 
-      //Fetch author profiles
       const { data: authorsData, error: authorsError } = await supabase
         .from("profiles")
         .select(
           `
-        id,
-        username,
-        display_name,
-        avatar_url,
-        bio,
-        followers_count,
-        following_count
-      `
+      id,
+      username,
+      display_name,
+      avatar_url,
+      bio,
+      followers_count,
+      following_count
+    `
         )
         .in("id", authorIds);
 
       if (authorsError) throw authorsError;
 
-      //Map for authors
       const authorsMap = new Map();
       authorsData?.forEach((author) => {
         authorsMap.set(author.id, {
@@ -537,6 +536,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           following: 0,
         },
         createdAt: comment.created_at,
+        parentCommentId: comment.parent_comment_id,
       }));
 
       setComments((prev) => [
@@ -550,7 +550,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addComment = async (
     postId: string,
-    content: string
+    content: string,
+    parentCommentId?: string | null
   ): Promise<{ success: boolean; comment?: Comment; error?: Error }> => {
     if (!currentUser) {
       return { success: false, error: new Error("No user logged in") };
@@ -564,6 +565,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           post_id: postId,
           author_id: currentUser.id,
           created_at: new Date().toISOString(),
+          parent_comment_id: parentCommentId ?? null,
         })
         .select(
           `
@@ -571,7 +573,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           content,
           created_at,
           post_id,
-          author_id
+          author_id,
+          parent_comment_id
         `
         )
         .single();
@@ -595,6 +598,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           following: currentUser.following,
         },
         createdAt: data.created_at,
+        parentCommentId: data.parent_comment_id,
       };
 
       setComments((prev) => [...prev, newComment]);
@@ -602,7 +606,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const post = getPostById(postId);
       const postAuthorId = post?.author.id;
 
-      //Notification creation on comment
+      //Check if has a parent for special notification
+      //const isReply = newComment.parentCommentId;
+
+      //Notification creation on normal comment
       if (postAuthorId && postAuthorId !== currentUser.id) {
         await supabase.from("notifications").insert({
           recipient_id: postAuthorId,
@@ -613,6 +620,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           is_read: false,
         });
       }
+
+      //TODO: Notification for replies
 
       return { success: true, comment: newComment };
     } catch (error) {

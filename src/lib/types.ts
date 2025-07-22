@@ -22,4 +22,5 @@ export interface Comment {
   author: User;
   postId: string;
   createdAt: string;
+  parentCommentId?: string | null;
 }

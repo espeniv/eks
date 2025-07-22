@@ -27,7 +27,77 @@ export default function PostPage({
     }
   }, [id]);
 
-  //Case if post is not found
+  function getReplies(comments, parentId) {
+    return comments.filter((c) => c.parentCommentId === parentId);
+  }
+
+  function renderComments(comments, allComments, depth = 0) {
+    return comments.map((comment) => (
+      <div
+        key={comment.id}
+        className="border-b border-gray-800/50 bg-black w-full"
+      >
+        <div
+          className="flex items-center"
+          style={{ marginLeft: depth * 24, padding: "1rem" }}
+        >
+          {depth > 0 && (
+            <svg
+              className="mr-2 flex-shrink-0"
+              width="30"
+              height="30"
+              viewBox="0 0 30 30"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 2V14H15"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M13 12L15 14L13 16"
+                stroke="#FFFFFF"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-2">
+              <Link href={`/profile/${comment.author.username}`}>
+                <span className="font-bold hover:underline cursor-pointer">
+                  {`${comment.author.avatar || "👤"}   ${
+                    comment.author.displayName
+                  }`}
+                </span>
+                <span className="ml-3 text-gray-500">
+                  @{comment.author.username}
+                </span>
+              </Link>
+              <span className="text-gray-500">·</span>
+              <span className="text-gray-500">
+                {formatRelativeTime(comment.createdAt)}
+              </span>
+            </div>
+            <div className="flex justify-between items-start">
+              <p className="text-gray-200 flex-1">{comment.content}</p>
+            </div>
+          </div>
+        </div>
+        {renderComments(
+          getReplies(allComments, comment.id),
+          allComments,
+          depth + 1
+        )}
+      </div>
+    ));
+  }
+
+  //If post is not found
   if (!post) {
     return (
       <div className="max-w-2xl">
@@ -51,38 +121,10 @@ export default function PostPage({
       </div>
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="space-y-2 p-4">
-          {comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="bg-black p-4 border-b border-gray-800/50"
-            >
-              <div className="flex items-center space-x-2 mb-2">
-                <Link href={`/profile/${comment.author.username}`}>
-                  <span className="font-bold hover:underline cursor-pointer">
-                    {`${comment.author.avatar || "👤"}   ${
-                      comment.author.displayName
-                    }`}
-                  </span>
-                  <span className="ml-3 text-gray-500">
-                    @{comment.author.username}
-                  </span>
-                </Link>
-                <span className="text-gray-500">·</span>
-                <span className="text-gray-500">
-                  {formatRelativeTime(comment.createdAt)}
-                </span>
-              </div>
-              <div className="flex justify-between items-start">
-                <p className="text-gray-200 flex-1">{comment.content}</p>
-                {/*
-                {{comment.author.id === currentUser?.id && (
-                  <button className="cursor-pointer px-3 py-1 text-xs text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 rounded-full transition-colors duration-200 ml-4 flex-shrink-0">
-                    Delete
-                  </button>
-                )} */}
-              </div>
-            </div>
-          ))}
+          {renderComments(
+            comments.filter((c) => !c.parentCommentId),
+            comments
+          )}
 
           {comments.length === 0 && (
             <div className="text-center text-gray-500 py-8">
