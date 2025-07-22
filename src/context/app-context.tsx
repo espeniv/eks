@@ -616,12 +616,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
           sender_id: currentUser.id,
           post_id: postId,
           type: "comment",
-          message: "commented on your post",
+          message: newComment.content,
           is_read: false,
         });
       }
 
-      //TODO: Notification for replies
+      //Notifications for replies to comments
+      if (newComment.parentCommentId) {
+        const { data: parentComment, error: parentError } = await supabase
+          .from("comments")
+          .select("author_id")
+          .eq("id", newComment.parentCommentId)
+          .single();
+
+        if (
+          !parentError &&
+          parentComment &&
+          parentComment.author_id !== currentUser.id
+        ) {
+          await supabase.from("notifications").insert({
+            recipient_id: parentComment.author_id,
+            sender_id: currentUser.id,
+            post_id: postId,
+            comment_id: newComment.id,
+            type: "reply",
+            message: newComment.content,
+            is_read: false,
+          });
+        }
+      }
 
       return { success: true, comment: newComment };
     } catch (error) {

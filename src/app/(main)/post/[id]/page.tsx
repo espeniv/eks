@@ -97,7 +97,7 @@ export default function PostPage({
           </div>
           {!(depth == 3) ? (
             <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-transparent text-gray-400 opacity-0 transition-opacity group-hover:opacity-25 hover:opacity-100 hover:text-orange-400 cursor-pointer"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-transparent text-gray-400 opacity-25 transition-opacity group-hover:opacity-25 hover:opacity-100 hover:text-orange-400 cursor-pointer"
               type="button"
               aria-label="Reply"
               onClick={() => setReplyToId(comment.id)}

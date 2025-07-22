@@ -23,7 +23,8 @@ export function CommentField({
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (commentContent.trim()) {
-      await addComment(post.id, commentContent);
+      await addComment(post.id, commentContent, parentCommentId);
+      if (onCancel) onCancel();
       setCommentContent("");
       setRemainingChars(140);
       await fetchPosts();
