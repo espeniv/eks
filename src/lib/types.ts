@@ -13,6 +13,7 @@ export interface Post {
   author: User;
   likes: number;
   createdAt: string;
+  commentCount?: number;
 }
 
 export interface Comment {

@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 interface AppContextType {
   currentUser: User | null;
   posts: Post[];
+  fetchPosts: () => void;
   addPost: (
     content: string
   ) => Promise<{ success: boolean; post?: Post; error?: Error }>;
@@ -57,6 +58,7 @@ interface SupabasePost {
   content: string;
   created_at: string;
   likes_count: number | null;
+  comment_count: number | null;
   is_liked_by_user: boolean;
   author_id: string;
   profiles: SupabaseProfile;
@@ -192,7 +194,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const fetchPosts = async () => {
     try {
       const { data, error } = await supabase
-        .from("posts_with_likes")
+        .from("posts_with_likes_and_comments")
         .select(
           `
         id,
@@ -201,6 +203,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         likes_count,
         is_liked_by_user,
         author_id,
+        comment_count,
         profiles!posts_author_id_fkey (
           id,
           username,
@@ -241,6 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         likes: post.likes_count || 0,
         createdAt: post.created_at,
+        commentCount: post.comment_count || 0,
       }));
       setPosts(formattedPosts);
 
@@ -641,7 +645,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // Fetch posts from followed users
       const { data: posts } = await supabase
-        .from("posts_with_likes")
+        .from("posts_with_likes_and_comments")
         .select(
           `
           id,
@@ -877,6 +881,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value: AppContextType = {
     posts,
     addPost,
+    fetchPosts,
     getPostById,
     currentUser,
     togglePostLike,

@@ -9,7 +9,7 @@ interface CommentFieldProps {
 }
 
 export function CommentField({ post }: CommentFieldProps) {
-  const { addComment } = useApp();
+  const { addComment, fetchPosts, fetchFollowingPosts } = useApp();
   const [commentContent, setCommentContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
 
@@ -19,6 +19,8 @@ export function CommentField({ post }: CommentFieldProps) {
       await addComment(post.id, commentContent);
       setCommentContent("");
       setRemainingChars(140);
+      await fetchPosts();
+      await fetchFollowingPosts();
     }
   };
 

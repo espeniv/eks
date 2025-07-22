@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
 import { formatRelativeTime } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
 
 interface PostCardProps {
   post: Post;
@@ -17,31 +15,6 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
   const router = useRouter();
 
   const { togglePostLike, isPostLikedByUser, currentUser } = useApp();
-
-  const [commentCount, setCommentCount] = useState<number | null>(0);
-
-  //To get comment count
-  useEffect(() => {
-    if (singlePostView) return;
-
-    const fetchCommentCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from("comments")
-          .select("*", { count: "exact", head: true })
-          .eq("post_id", post.id);
-
-        if (!error) {
-          setCommentCount(count || 0);
-        }
-      } catch (error) {
-        console.error("Error fetching comment count:", error);
-      } finally {
-      }
-    };
-
-    fetchCommentCount();
-  }, [post.id, singlePostView]);
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -115,7 +88,7 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
             {!singlePostView ? (
               <div className="flex items-center space-x-2 ml-4 pr-3">
                 <span>💬</span>
-                <span>{commentCount}</span>
+                <span>{post.commentCount ?? 0}</span>
               </div>
             ) : null}
           </div>
