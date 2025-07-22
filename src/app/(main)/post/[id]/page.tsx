@@ -58,14 +58,14 @@ export default function PostPage({
             >
               <path
                 d="M12 2V30H32"
-                stroke="#FF7300"
+                stroke="#1F2937"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M28 26L32 30L28 34"
-                stroke="#FF7300"
+                stroke="#1F2937"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
