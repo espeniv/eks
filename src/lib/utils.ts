@@ -14,3 +14,9 @@ export const formatRelativeTime = (timestamp: string) => {
     return postTime.toLocaleDateString();
   }
 };
+
+//To end notifications with a quotation mark after ...
+export function truncateWithQuote(str: string, maxLength: number) {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength - 1) + '…"';
+}
