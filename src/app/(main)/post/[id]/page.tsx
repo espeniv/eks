@@ -6,6 +6,7 @@ import { useApp } from "@/context/app-context";
 import { use, useEffect } from "react";
 import { formatRelativeTime } from "@/lib/utils";
 import Link from "next/link";
+import { Comment } from "@/lib/types";
 
 export default function PostPage({
   params,
@@ -27,47 +28,51 @@ export default function PostPage({
     }
   }, [id]);
 
-  function getReplies(comments, parentId) {
+  function getReplies(comments: Comment[], parentId: string) {
     return comments.filter((c) => c.parentCommentId === parentId);
   }
 
-  function renderComments(comments, allComments, depth = 0) {
+  function renderComments(
+    comments: Comment[],
+    allComments: Comment[],
+    depth = 0
+  ) {
     return comments.map((comment) => (
       <div
         key={comment.id}
-        className="border-b border-gray-800/50 bg-black w-full"
+        className={`${depth === 0 && "border-gray-800 border-b"}`}
       >
         <div
-          className="flex items-center"
-          style={{ marginLeft: depth * 24, padding: "1rem" }}
+          className="relative flex items-center group"
+          style={{ marginLeft: depth * 60, padding: "0.5rem" }}
         >
           {depth > 0 && (
             <svg
-              className="mr-2 flex-shrink-0"
-              width="30"
-              height="30"
-              viewBox="0 0 30 30"
+              className="mr-4 flex-shrink-0"
+              width="40"
+              height="60"
+              viewBox="0 0 40 60"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M9 2V14H15"
-                stroke="#FFFFFF"
+                d="M12 2V30H32"
+                stroke="#FF7300"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
-                d="M13 12L15 14L13 16"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
+                d="M28 26L32 30L28 34"
+                stroke="#FF7300"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
           )}
-          <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center mb-2">
               <Link href={`/profile/${comment.author.username}`}>
                 <span className="font-bold hover:underline cursor-pointer">
                   {`${comment.author.avatar || "👤"}   ${
@@ -78,21 +83,46 @@ export default function PostPage({
                   @{comment.author.username}
                 </span>
               </Link>
-              <span className="text-gray-500">·</span>
+              <span className="text-gray-500 mx-2">·</span>
               <span className="text-gray-500">
                 {formatRelativeTime(comment.createdAt)}
               </span>
             </div>
             <div className="flex justify-between items-start">
-              <p className="text-gray-200 flex-1">{comment.content}</p>
+              <p className="text-gray-200 flex-1 break-all mr-10">
+                {comment.content}
+              </p>
             </div>
           </div>
+          {!(depth == 3) ? (
+            <button
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-transparent text-gray-400 opacity-0 transition-opacity group-hover:opacity-25 hover:opacity-100 hover:text-orange-400 cursor-pointer"
+              type="button"
+              aria-label="Reply"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5"
+              >
+                <path d="M10 9V5l-7 7 7 7v-4c4 0 7 1.5 9 5-1-5-4-10-9-10z" />
+              </svg>
+            </button>
+          ) : null}
         </div>
-        {renderComments(
-          getReplies(allComments, comment.id),
-          allComments,
-          depth + 1
-        )}
+        {depth < 3 &&
+          renderComments(
+            getReplies(allComments, comment.id),
+            allComments,
+            depth + 1
+          )}
       </div>
     ));
   }
@@ -120,7 +150,7 @@ export default function PostPage({
         </div>
       </div>
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="space-y-2 p-4">
+        <div className="p-2">
           {renderComments(
             comments.filter((c) => !c.parentCommentId),
             comments
