@@ -3,7 +3,7 @@
 import { PostCard } from "@/components/post-card";
 import { CommentField } from "@/components/comment-field";
 import { useApp } from "@/context/app-context";
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import { formatRelativeTime } from "@/lib/utils";
 import Link from "next/link";
 import { Comment } from "@/lib/types";
@@ -14,6 +14,7 @@ export default function PostPage({
   params: Promise<{ id: string }>;
 }) {
   const { getPostById, getCommentsByPostId, fetchComments } = useApp();
+  const [replyToId, setReplyToId] = useState<string | null>(null);
 
   const { id } = use(params);
   const post = getPostById(id);
@@ -99,6 +100,7 @@ export default function PostPage({
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-transparent text-gray-400 opacity-0 transition-opacity group-hover:opacity-25 hover:opacity-100 hover:text-orange-400 cursor-pointer"
               type="button"
               aria-label="Reply"
+              onClick={() => setReplyToId(comment.id)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -117,6 +119,25 @@ export default function PostPage({
             </button>
           ) : null}
         </div>
+        {replyToId === comment.id && post != null && (
+          <div
+            className="pl-2 pr-2 pb-2"
+            style={
+              depth === 0
+                ? undefined
+                : {
+                    marginLeft: (depth + 1) * 60,
+                    maxWidth: `calc(100% - ${(depth + 1) * 60}px)`,
+                  }
+            }
+          >
+            <CommentField
+              post={post}
+              parentCommentId={comment.id}
+              onCancel={() => setReplyToId(null)}
+            />
+          </div>
+        )}
         {depth < 3 &&
           renderComments(
             getReplies(allComments, comment.id),
@@ -131,7 +152,7 @@ export default function PostPage({
   if (!post) {
     return (
       <div className="max-w-2xl">
-        <div className="p-8 text-center">
+        <div className="pl-8 pr-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Post not found</h1>
           <p className="text-gray-500">
             The post you are looking for does not exist or has been deleted.
@@ -150,7 +171,7 @@ export default function PostPage({
         </div>
       </div>
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="p-2">
+        <div className="p-2 pt-0">
           {renderComments(
             comments.filter((c) => !c.parentCommentId),
             comments
