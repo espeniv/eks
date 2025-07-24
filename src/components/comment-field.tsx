@@ -33,6 +33,15 @@ export function CommentField({
     }
   };
 
+  //To adjust height of comment area with comment length
+  const handleInput = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+  };
+
   //To autofocus
   useEffect(() => {
     if (parentCommentId && textareaRef.current) {
@@ -54,7 +63,7 @@ export function CommentField({
   return (
     <form
       onSubmit={handleCommentSubmit}
-      className={isReply ? "p-0" : "p-4 py-0.5"}
+      className={isReply ? "p-0" : "p-1 py-0.5"}
     >
       {isReply ? (
         <div className="flex items-end space-x-2">
@@ -84,21 +93,22 @@ export function CommentField({
           </div>
         </div>
       ) : (
-        <div className="flex space-x-4">
+        <div className="flex space-x-2">
           <div className="flex-1">
             <textarea
               ref={textareaRef}
               value={commentContent}
               onChange={handleCommentChange}
+              onInput={handleInput}
               placeholder="What do you think about this?"
               className="w-full bg-transparent text-m placeholder-gray-500 resize-none outline-none border-none"
-              rows={3}
+              rows={1}
             />
-            <div className="flex justify-end items-center mt-4">
+            <div className="flex justify-end items-center">
               <button
                 type="submit"
                 disabled={!commentContent.trim() || remainingChars < 0}
-                className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold hover:bg-orange-400 disabled:opacity-50 cursor-pointer disabled:cursor-default"
+                className="bg-orange-500 text-white px-4 py-1 rounded-full font-bold hover:bg-orange-400 disabled:opacity-50 cursor-pointer disabled:cursor-default"
               >
                 Reply
               </button>
