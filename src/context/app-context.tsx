@@ -686,6 +686,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           likes_count,
           is_liked_by_user,
           author_id,
+          comment_count,
           profiles!posts_author_id_fkey(
             id,
             username,
@@ -709,6 +710,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           content: post.content,
           createdAt: post.created_at,
           likes: post.likes_count || 0,
+          commentCount: post.comment_count || 0,
           author: {
             id: post.profiles.id,
             username: post.profiles.username,

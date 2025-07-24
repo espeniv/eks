@@ -59,7 +59,7 @@ export default function PostPage({
               <path
                 d="M12 2V30H32"
                 stroke="#1F2937"
-                strokeWidth="1.5"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
