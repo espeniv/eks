@@ -41,7 +41,7 @@ export default function PostPage({
     return comments.map((comment) => (
       <div
         key={comment.id}
-        className={`${depth === 0 && "border-gray-800 border-b"}`}
+        className={`${depth === 0 && "border-gray-800 border-b py-3 px-1"}`}
       >
         <div
           className="relative flex items-center group"
