@@ -152,6 +152,31 @@ export default function PostPage({
   if (!post) {
     return (
       <div className="max-w-2xl">
+        <div className=" p-4 flex items-center mb-10">
+          <Link
+            href="/home"
+            className="ml-2.5 mr-6 transition flex items-center justify-center"
+            aria-label="Back to home"
+            style={{ minWidth: 0, minHeight: 0 }}
+          >
+            <svg
+              width="30"
+              height="30"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              viewBox="0 0 30 30"
+              className="text-gray-500 hover:text-white w-6 h-6"
+              style={{ display: "block" }}
+            >
+              <line x1="24" y1="15" x2="7" y2="15" />
+              <polyline points="13 9 7 15 13 21" />
+            </svg>
+          </Link>
+          <h1 className="text-xl font-bold">Post</h1>
+        </div>
         <div className="pl-8 pr-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Post not found</h1>
           <p className="text-gray-500">
@@ -164,6 +189,31 @@ export default function PostPage({
 
   return (
     <div className="h-screen flex flex-col max-w-2xl">
+      <div className=" p-4 flex items-center">
+        <Link
+          href="/home"
+          className="ml-2.5 mr-6 transition flex items-center justify-center"
+          aria-label="Back to home"
+          style={{ minWidth: 0, minHeight: 0 }}
+        >
+          <svg
+            width="30"
+            height="30"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 30 30"
+            className="text-gray-500 hover:text-white w-6 h-6"
+            style={{ display: "block" }}
+          >
+            <line x1="24" y1="15" x2="7" y2="15" />
+            <polyline points="13 9 7 15 13 21" />
+          </svg>
+        </Link>
+        <h1 className="text-xl font-bold">Post</h1>
+      </div>
       <div className="flex-shrink-0 bg-black">
         <PostCard post={post} singlePostView={true} />
         <div className="border-b border-gray-800 p-4">
