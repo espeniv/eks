@@ -6,6 +6,7 @@ import { useApp } from "@/context/app-context";
 import { use, useEffect, useState } from "react";
 import { formatRelativeTime } from "@/lib/utils";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Comment } from "@/lib/types";
 
 export default function PostPage({
@@ -19,6 +20,10 @@ export default function PostPage({
   const { id } = use(params);
   const post = getPostById(id);
   const comments = getCommentsByPostId(id);
+
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+  const backHref = from ? from : "/home";
 
   useEffect(() => {
     if (id) {
@@ -154,7 +159,7 @@ export default function PostPage({
       <div className="max-w-2xl">
         <div className=" p-4 flex items-center mb-10">
           <Link
-            href="/home"
+            href={backHref}
             className="ml-2.5 mr-6 transition flex items-center justify-center"
             aria-label="Back to home"
             style={{ minWidth: 0, minHeight: 0 }}
@@ -191,7 +196,7 @@ export default function PostPage({
     <div className="h-screen flex flex-col max-w-2xl">
       <div className=" p-4 flex items-center">
         <Link
-          href="/home"
+          href={backHref}
           className="ml-2.5 mr-6 transition flex items-center justify-center"
           aria-label="Back to home"
           style={{ minWidth: 0, minHeight: 0 }}

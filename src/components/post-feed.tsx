@@ -8,9 +8,14 @@ import { useMemo } from "react";
 interface PostFeedProps {
   filterByUserId?: string;
   filterByFollowing?: boolean;
+  onProfile?: boolean;
 }
 
-export function PostFeed({ filterByUserId, filterByFollowing }: PostFeedProps) {
+export function PostFeed({
+  filterByUserId,
+  filterByFollowing,
+  onProfile,
+}: PostFeedProps) {
   const { posts, followingPosts } = useApp();
 
   const filteredPosts = useMemo(() => {
@@ -29,7 +34,7 @@ export function PostFeed({ filterByUserId, filterByFollowing }: PostFeedProps) {
     <div>
       {filteredPosts.length > 0 ? (
         filteredPosts.map((post: Post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} onProfile={onProfile} />
         ))
       ) : (
         <div className="p-8 text-center">

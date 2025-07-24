@@ -9,9 +9,10 @@ import { formatRelativeTime } from "@/lib/utils";
 interface PostCardProps {
   post: Post;
   singlePostView?: boolean;
+  onProfile?: boolean;
 }
 
-export function PostCard({ post, singlePostView }: PostCardProps) {
+export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
   const router = useRouter();
 
   const { togglePostLike, isPostLikedByUser, currentUser } = useApp();
@@ -23,7 +24,11 @@ export function PostCard({ post, singlePostView }: PostCardProps) {
     ) {
       return;
     }
-    router.push(`/post/${post.id}`);
+    if (onProfile) {
+      router.push(`/post/${post.id}?from=/profile/${post.author.username}`);
+    } else {
+      router.push(`/post/${post.id}`);
+    }
   };
 
   const handleLikeClick = () => {

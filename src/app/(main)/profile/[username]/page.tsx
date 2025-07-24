@@ -205,7 +205,7 @@ export default function ProfilePage({
         </div>
       </div>
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <PostFeed filterByUserId={user.id} />
+        <PostFeed onProfile={true} filterByUserId={user.id} />
       </div>
     </div>
   );
