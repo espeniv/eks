@@ -5,6 +5,7 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -87,8 +88,19 @@ export default function RegisterPage() {
         },
       ]);
     }
-
-    router.push("/home");
+    toast.success("User created", {
+      style: {
+        background: "#000000",
+        color: "orange",
+        fontSize: "16px",
+        border: "0px solid black",
+        textAlign: "center",
+        justifyContent: "center",
+        padding: "12px 24px",
+        marginBottom: "20px",
+      },
+    });
+    router.push("/login");
     setLoading(false);
   };
 
@@ -99,7 +111,6 @@ export default function RegisterPage() {
           <h2 className="text-4xl font-bold font-unbounded text-white mb-6">
             Create account
           </h2>
-
           <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500 rounded-md">
             <p className="text-sm text-white mb-3">
               If you do not want to create your own account you can log into the
