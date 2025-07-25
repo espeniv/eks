@@ -24,6 +24,10 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
     ) {
       return;
     }
+    const feed = document.querySelector("[data-feed-scrollable]");
+    if (feed) {
+      sessionStorage.setItem("homeScroll", feed.scrollTop.toString());
+    }
     if (onProfile) {
       router.push(`/post/${post.id}?from=/profile/${post.author.username}`);
     } else {

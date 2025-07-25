@@ -3,7 +3,7 @@
 import { PostCard } from "@/components/post-card";
 import { useApp } from "@/context/app-context";
 import { Post } from "@/lib/types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 interface PostFeedProps {
   filterByUserId?: string;
@@ -17,6 +17,16 @@ export function PostFeed({
   onProfile,
 }: PostFeedProps) {
   const { posts, followingPosts } = useApp();
+  const feedRef = useRef<HTMLDivElement>(null);
+
+  //Restore scroll position when navigation "back"
+  useEffect(() => {
+    const scroll = sessionStorage.getItem("homeScroll");
+    if (scroll && feedRef.current) {
+      feedRef.current.scrollTop = parseInt(scroll, 10);
+      sessionStorage.removeItem("homeScroll");
+    }
+  }, []);
 
   const filteredPosts = useMemo(() => {
     if (filterByFollowing) {
@@ -31,7 +41,11 @@ export function PostFeed({
   }, [posts, followingPosts, filterByUserId, filterByFollowing]);
 
   return (
-    <div>
+    <div
+      ref={feedRef}
+      data-feed-scrollable
+      style={{ overflowY: "auto", height: "100%" }}
+    >
       {filteredPosts.length > 0 ? (
         filteredPosts.map((post: Post) => (
           <PostCard key={post.id} post={post} onProfile={onProfile} />
