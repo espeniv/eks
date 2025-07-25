@@ -14,6 +14,10 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"all" | "following">("all");
 
   useEffect(() => {
+    document.title = "Home / Eks";
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -18,6 +18,10 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const { signUp } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    document.title = "Register / Eks";
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({

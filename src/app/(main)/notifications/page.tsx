@@ -10,6 +10,7 @@ export default function NotificationsPage() {
 
   //Mark notifs as read when component unmounts
   useEffect(() => {
+    document.title = "Notifications / Eks";
     return () => {
       markAllNotificationsAsRead();
     };

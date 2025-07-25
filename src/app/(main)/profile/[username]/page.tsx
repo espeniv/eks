@@ -21,6 +21,10 @@ export default function ProfilePage({
   const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
+    document.title = `${username[0].toUpperCase() + username.slice(1)} / Eks`;
+  }, [username]);
+
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);

@@ -19,6 +19,10 @@ export default function EditProfilePage({
   const [selectedEmoji, setSelectedEmoji] = useState("👤");
 
   useEffect(() => {
+    document.title = "Edit Profile / Eks";
+  }, []);
+
+  useEffect(() => {
     if (currentUser && currentUser.username !== username) {
       router.push(`/profile/${username}`);
       return;

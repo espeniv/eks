@@ -34,6 +34,10 @@ export default function PostPage({
     }
   }, [id]);
 
+  useEffect(() => {
+    document.title = "Post / Eks";
+  }, []);
+
   function getReplies(comments: Comment[], parentId: string) {
     return comments.filter((c) => c.parentCommentId === parentId);
   }

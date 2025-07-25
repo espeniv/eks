@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { Unbounded } from "next/font/google";
@@ -17,6 +17,10 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const { signIn } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    document.title = "Login / Eks";
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
