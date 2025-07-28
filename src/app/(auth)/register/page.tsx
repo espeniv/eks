@@ -82,7 +82,7 @@ export default function RegisterPage() {
           recipient_id: user.id,
           sender_id: user.id,
           type: "welcome",
-          message: "Welcome, and thanks for checking out my project! 🎉",
+          message: "Thanks for checking out my project! 🎉",
           is_read: false,
           created_at: new Date().toISOString(),
         },
