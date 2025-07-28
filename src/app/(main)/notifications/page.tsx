@@ -97,22 +97,22 @@ export default function NotificationsPage() {
                       <circle cx="4" cy="4" r="4" />
                     </svg>
                   )}
-                  <span className="font-semibold hover:underline cursor-pointer">
-                    <span
-                      className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.location.href = `/profile/${notification.sender.username}`;
-                      }}
-                      tabIndex={0}
-                      role="link"
-                    >
-                      {notification.sender.avatar}{" "}
-                      {notification.sender.displayName}
-                    </span>
+                  <span
+                    className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.location.href = `/profile/${notification.sender.username}`;
+                    }}
+                    tabIndex={0}
+                    role="link"
+                  >
+                    {`${notification.sender.avatar} ${notification.sender.displayName}`}
                   </span>
-                  commented on your post.
+                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`has commented on your post: "${truncateWithQuote(
+                    notification.message,
+                    15
+                  )}`}</span>
                   <span className="ml-auto text-xs text-gray-600">
                     {formatRelativeTime(notification.createdAt)}
                   </span>
