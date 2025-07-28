@@ -236,6 +236,50 @@ export default function NotificationsPage() {
               </Link>
             );
           }
+          if (notification.type === "mention") {
+            return (
+              <Link key={notification.id} href={`/post/${notification.postId}`}>
+                <div
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                    !notification.isRead
+                      ? "border-orange-400"
+                      : "border-gray-900"
+                  }`}
+                >
+                  {!notification.isRead && (
+                    <svg
+                      className="inline-block mr-2"
+                      width="8"
+                      height="8"
+                      viewBox="0 0 8 8"
+                      fill="orange"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ verticalAlign: "middle" }}
+                    >
+                      <circle cx="4" cy="4" r="4" />
+                    </svg>
+                  )}
+                  <span
+                    className="font-semibold hover:underline cursor-pointer inline-flex items-center mr-1"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.location.href = `/profile/${notification.sender.username}`;
+                    }}
+                    tabIndex={0}
+                    role="link"
+                  >
+                    {notification.sender.avatar}{" "}
+                    {notification.sender.displayName}
+                  </span>
+                  {notification.message}
+                  <span className="ml-auto text-xs text-gray-600">
+                    {formatRelativeTime(notification.createdAt)}
+                  </span>
+                </div>
+              </Link>
+            );
+          }
         })}
       </div>
     </div>

@@ -23,6 +23,18 @@ export function truncateWithQuote(str: string, maxLength: number) {
   return str.slice(0, maxLength - 1) + '…"';
 }
 
+//Required for mention notifications
+export function extractMentions(text: string): string[] {
+  const mentionRegex = /@([a-zA-Z0-9_]{3,32})/g;
+  const mentions = [];
+  let match;
+  while ((match = mentionRegex.exec(text)) !== null) {
+    mentions.push(match[1].toLowerCase());
+  }
+  //Set to remove duplicated
+  return [...new Set(mentions)];
+}
+
 //Function to parse all text content that can possibly include a "@username" mention to create a link
 export function parseMentions(text: string) {
   const mentionRegex = /@([a-zA-Z0-9_]{3,32})/g;

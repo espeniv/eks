@@ -12,6 +12,7 @@ import {
 import { Post, User, Comment } from "@/lib/types";
 import { useAuth } from "./auth-context";
 import { supabase } from "@/lib/supabase";
+import { extractMentions } from "@/lib/utils";
 
 interface AppContextType {
   currentUser: User | null;
@@ -335,6 +336,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       };
 
       setPosts((prev) => [newPost, ...prev]);
+
+      //To trigger notifications for mentions in new post
+      const mentionedUsernames = extractMentions(newPost.content);
+
+      for (const username of mentionedUsernames) {
+        const { data: user } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("username", username.toLowerCase())
+          .single();
+
+        if (user && user.id !== currentUser.id) {
+          await supabase.from("notifications").insert([
+            {
+              recipient_id: user.id,
+              sender_id: currentUser.id,
+              post_id: newPost.id,
+              type: "mention",
+              message: `mentioned you in a post.`,
+              is_read: false,
+              created_at: new Date().toISOString(),
+            },
+          ]);
+        }
+      }
+
       return { success: true, post: newPost };
     } catch (error) {
       console.error("Failed to create post:", error);
@@ -602,6 +629,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       };
 
       setComments((prev) => [...prev, newComment]);
+
+      //Notifications for mentions in new comment
+      const mentionedUsernames = extractMentions(newComment.content);
+
+      for (const username of mentionedUsernames) {
+        const { data: user } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("username", username.toLowerCase())
+          .single();
+
+        if (user && user.id !== currentUser.id) {
+          await supabase.from("notifications").insert([
+            {
+              recipient_id: user.id,
+              sender_id: currentUser.id,
+              post_id: newComment.postId,
+              comment_id: newComment.id,
+              type: "mention",
+              message: `mentioned you in a comment.`,
+              is_read: false,
+              created_at: new Date().toISOString(),
+            },
+          ]);
+        }
+      }
 
       const post = getPostById(postId);
       const postAuthorId = post?.author.id;
