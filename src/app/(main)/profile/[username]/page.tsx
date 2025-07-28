@@ -140,8 +140,8 @@ export default function ProfilePage({
               <Link
                 href={
                   currentUser?.id === user.id
-                    ? `/profile/${username}/edit`
-                    : `/profile/${username}`
+                    ? `/profile/${username.toLowerCase()}/edit`
+                    : `/profile/${username.toLowerCase()}`
                 }
               >
                 <div
@@ -169,7 +169,7 @@ export default function ProfilePage({
                   </p>
                 </div>
                 {currentUser?.id === user.id ? (
-                  <Link href={`/profile/${username}/edit`}>
+                  <Link href={`/profile/${username.toLowerCase()}/edit`}>
                     <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
                       Edit Profile
                     </button>

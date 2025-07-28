@@ -36,7 +36,7 @@ export function parseMentions(text: string) {
     result.push(
       <Link
         key={index}
-        href={`/profile/${username}`}
+        href={`/profile/${username.toLowerCase()}`}
         className="text-orange-400 hover:text-orange-500"
       >
         @{username}
