@@ -4,7 +4,7 @@ import { Post } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
-import { formatRelativeTime } from "@/lib/utils";
+import { formatRelativeTime, parseMentions } from "@/lib/utils";
 
 interface PostCardProps {
   post: Post;
@@ -76,7 +76,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
               </span>
             </div>
 
-            <p className="mt-1">{post.content}</p>
+            <p className="mt-1">{parseMentions(post.content)}</p>
           </div>
           <div>
             <button

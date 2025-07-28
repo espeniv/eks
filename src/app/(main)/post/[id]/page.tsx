@@ -4,7 +4,7 @@ import { PostCard } from "@/components/post-card";
 import { CommentField } from "@/components/comment-field";
 import { useApp } from "@/context/app-context";
 import { use, useEffect, useState } from "react";
-import { formatRelativeTime } from "@/lib/utils";
+import { formatRelativeTime, parseMentions } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Comment } from "@/lib/types";
@@ -100,7 +100,7 @@ export default function PostPage({
             </div>
             <div className="flex justify-between items-start">
               <p className="text-gray-200 flex-1 break-all mr-10">
-                {comment.content}
+                {parseMentions(comment.content)}
               </p>
             </div>
           </div>
