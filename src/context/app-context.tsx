@@ -659,22 +659,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const post = getPostById(postId);
       const postAuthorId = post?.author.id;
 
-      //Check if has a parent for special notification
-      //const isReply = newComment.parentCommentId;
-
-      //Notification creation on normal comment
-      if (postAuthorId && postAuthorId !== currentUser.id) {
-        await supabase.from("notifications").insert({
-          recipient_id: postAuthorId,
-          sender_id: currentUser.id,
-          post_id: postId,
-          type: "comment",
-          message: newComment.content,
-          is_read: false,
-        });
-      }
-
-      //Notifications for replies to comments
+      let parentCommentAuthorId: string | null = null;
       if (newComment.parentCommentId) {
         const { data: parentComment, error: parentError } = await supabase
           .from("comments")
@@ -682,21 +667,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .eq("id", newComment.parentCommentId)
           .single();
 
-        if (
-          !parentError &&
-          parentComment &&
-          parentComment.author_id !== currentUser.id
-        ) {
-          await supabase.from("notifications").insert({
-            recipient_id: parentComment.author_id,
-            sender_id: currentUser.id,
-            post_id: postId,
-            comment_id: newComment.id,
-            type: "reply",
-            message: newComment.content,
-            is_read: false,
-          });
+        if (!parentError && parentComment) {
+          parentCommentAuthorId = parentComment.author_id;
+          //Only notify reply if not replying to self
+          if (parentComment.author_id !== currentUser.id) {
+            await supabase.from("notifications").insert({
+              recipient_id: parentComment.author_id,
+              sender_id: currentUser.id,
+              post_id: postId,
+              comment_id: newComment.id,
+              type: "reply",
+              message: newComment.content,
+              is_read: false,
+            });
+          }
         }
+      }
+
+      //Only notify post author if not replying to authors comment (to avoid double notification)
+      if (
+        postAuthorId &&
+        postAuthorId !== currentUser.id &&
+        postAuthorId !== parentCommentAuthorId
+      ) {
+        await supabase.from("notifications").insert({
+          recipient_id: postAuthorId,
+          sender_id: currentUser.id,
+          post_id: postId,
+          comment_id: newComment.id,
+          type: "comment",
+          message: newComment.content,
+          is_read: false,
+        });
       }
 
       return { success: true, comment: newComment };
