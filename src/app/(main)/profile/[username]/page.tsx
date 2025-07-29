@@ -3,6 +3,7 @@
 import { PostFeed } from "@/components/post-feed";
 import { User } from "@/lib/types";
 import { useApp } from "@/context/app-context";
+import { useAuth } from "@/context/auth-context";
 import { use, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
@@ -14,6 +15,7 @@ export default function ProfilePage({
 }) {
   const { username } = use(params);
   const { currentUser, toggleFollow, isFollowing } = useApp();
+  const { signOut } = useAuth();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -175,7 +177,10 @@ export default function ProfilePage({
                         Edit Profile
                       </button>
                     </Link>
-                    <button className="md:hidden border border-red-600 text-red-600 font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
+                    <button
+                      onClick={() => signOut()}
+                      className="md:hidden border border-red-600 text-red-600 font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer"
+                    >
                       Log Out
                     </button>
                   </div>
