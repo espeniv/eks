@@ -147,7 +147,7 @@ export default function PostPage({
               )}
             </div>
             <div className="flex justify-between items-start">
-              <p className="text-gray-200 flex-1 break-all mr-10">
+              <p className="text-gray-200 flex-1 break-words mr-10">
                 {parseMentions(comment.content)}
               </p>
             </div>

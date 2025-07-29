@@ -117,7 +117,9 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                 ""
               )}
             </div>
-            <p className="mt-1">{parseMentions(post.content)}</p>
+            <p className="mt-1 whitespace-pre-wrap font-mono max-w-lg break-words">
+              {parseMentions(post.content)}
+            </p>
           </div>
           <div>
             <button
