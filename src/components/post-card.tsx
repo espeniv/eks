@@ -99,7 +99,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                         router.push("/home");
                       }}
                     >
-                      Confirm Delete
+                      Confirm Deletion
                     </span>
                   ) : (
                     <span

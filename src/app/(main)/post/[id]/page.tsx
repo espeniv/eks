@@ -14,8 +14,28 @@ export default function PostPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { getPostById, getCommentsByPostId, fetchComments } = useApp();
+  const {
+    getPostById,
+    getCommentsByPostId,
+    fetchComments,
+    deleteComment,
+    currentUser,
+  } = useApp();
+
   const [replyToId, setReplyToId] = useState<string | null>(null);
+
+  const [showConfirmDeleteId, setShowConfirmDeleteId] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (showConfirmDeleteId) {
+      const timer = setTimeout(() => {
+        setShowConfirmDeleteId(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfirmDeleteId]);
 
   const { id } = use(params);
   const post = getPostById(id);
@@ -94,9 +114,37 @@ export default function PostPage({
                 </span>
               </Link>
               <span className="text-gray-500 mx-2">·</span>
-              <span className="text-gray-500">
+              <span className="text-gray-500 mr-2">
                 {formatRelativeTime(comment.createdAt)}
               </span>
+              {currentUser?.id === comment.author.id ? (
+                <>
+                  <span className="text-gray-500 mr-2">·</span>
+                  {showConfirmDeleteId === comment.id ? (
+                    <span
+                      className="text-gray-500 hover:text-red-600 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteComment(comment.id);
+                      }}
+                    >
+                      Confirm Deletion
+                    </span>
+                  ) : (
+                    <span
+                      className="text-gray-500 hover:text-orange-500 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowConfirmDeleteId(comment.id);
+                      }}
+                    >
+                      Delete
+                    </span>
+                  )}
+                </>
+              ) : (
+                ""
+              )}
             </div>
             <div className="flex justify-between items-start">
               <p className="text-gray-200 flex-1 break-all mr-10">
