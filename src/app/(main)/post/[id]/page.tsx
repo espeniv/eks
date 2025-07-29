@@ -70,7 +70,10 @@ export default function PostPage({
     return comments.map((comment) => (
       <div
         key={comment.id}
-        className={`${depth === 0 && "border-gray-800 border-b py-3 px-1"}`}
+        className={`${
+          depth === 0 &&
+          "border-gray-800 border-b py-3 px-1 text-sm md:text-base"
+        }`}
       >
         <div
           className="relative flex items-center group"
@@ -101,7 +104,11 @@ export default function PostPage({
               />
             </svg>
           )}
-          <div className="flex-1 min-w-0">
+          <div
+            className={`flex-1 min-w-0 ${
+              depth > 0 ? `text-[${10 - 1 * depth}px] md:text-base` : ""
+            }`}
+          >
             <div className="flex items-center mb-2">
               <Link href={`/profile/${comment.author.username}`}>
                 <span className="font-bold hover:underline cursor-pointer">

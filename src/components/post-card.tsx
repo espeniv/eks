@@ -56,7 +56,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
 
   return (
     <div
-      className={`border-b border-gray-800 p-4 ${
+      className={`border-b border-gray-800 p-4 text-sm md:text-base ${
         !singlePostView ? "hover:bg-gray-950 cursor-pointer" : null
       }`}
       onClick={handleCardClick}
