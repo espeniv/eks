@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
 import { formatRelativeTime, parseMentions } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 interface PostCardProps {
   post: Post;
@@ -15,7 +16,19 @@ interface PostCardProps {
 export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
   const router = useRouter();
 
-  const { togglePostLike, isPostLikedByUser, currentUser } = useApp();
+  const { togglePostLike, isPostLikedByUser, currentUser, deletePost } =
+    useApp();
+
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    if (showConfirmDelete) {
+      const timer = setTimeout(() => {
+        setShowConfirmDelete(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfirmDelete]);
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (
@@ -74,14 +87,41 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
               <span className="text-gray-500">
                 {formatRelativeTime(post.createdAt)}
               </span>
+              {currentUser?.id === post.author.id ? (
+                <>
+                  <span className="text-gray-500">·</span>
+                  {showConfirmDelete ? (
+                    <span
+                      className="text-gray-500 hover:text-red-600 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deletePost(post.id);
+                        router.push("/home");
+                      }}
+                    >
+                      Confirm Delete
+                    </span>
+                  ) : (
+                    <span
+                      className="text-gray-500 hover:text-orange-500 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowConfirmDelete(true);
+                      }}
+                    >
+                      Delete
+                    </span>
+                  )}
+                </>
+              ) : (
+                ""
+              )}
             </div>
-
             <p className="mt-1">{parseMentions(post.content)}</p>
           </div>
           <div>
             <button
               className={`flex items-center space-x-2 ml-4 pr-3 ${
-                //Check if currentuser is owner of a post to disable liking
                 currentUser?.id !== post.author.id
                   ? "hover:text-orange-400 rounded-full transition-colors cursor-pointer"
                   : ""
