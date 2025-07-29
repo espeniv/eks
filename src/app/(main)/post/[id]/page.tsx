@@ -106,7 +106,13 @@ export default function PostPage({
           )}
           <div
             className={`flex-1 min-w-0 ${
-              depth > 0 ? `text-[${10 - 1 * depth}px] md:text-base` : ""
+              depth === 1
+                ? "text-xs"
+                : depth === 2
+                ? "text-[10px]"
+                : depth === 3
+                ? "text-[8px]"
+                : "md:text-base"
             }`}
           >
             <div className="flex items-center mb-2">
@@ -159,7 +165,7 @@ export default function PostPage({
               </p>
             </div>
           </div>
-          {!(depth == 3) ? (
+          {!(depth >= 2) ? (
             <button
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-transparent text-gray-400 opacity-25 transition-opacity group-hover:opacity-25 hover:opacity-100 hover:text-orange-400 cursor-pointer"
               type="button"
