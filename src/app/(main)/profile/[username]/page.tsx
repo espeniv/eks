@@ -136,7 +136,7 @@ export default function ProfilePage({
       <div className="flex-shrink-0 bg-black border-b border-gray-800">
         <div className="p-4">
           <div className="relative">
-            <div className="flex justify-center pt-8 pb-6">
+            <div className="flex justify-center pt-2 pb-6 md:pt-8">
               <Link
                 href={
                   currentUser?.id === user.id
@@ -169,11 +169,16 @@ export default function ProfilePage({
                   </p>
                 </div>
                 {currentUser?.id === user.id ? (
-                  <Link href={`/profile/${username.toLowerCase()}/edit`}>
-                    <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
-                      Edit Profile
+                  <div className="flex flex-col items-end gap-2 mt-2 -mb-10 md:mt-0 md:mb-0 ">
+                    <Link href={`/profile/${username.toLowerCase()}/edit`}>
+                      <button className="border border-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
+                        Edit Profile
+                      </button>
+                    </Link>
+                    <button className="md:hidden border border-red-600 text-red-600 font-bold py-2 px-6 rounded-full hover:bg-gray-900 transition-colors cursor-pointer">
+                      Log Out
                     </button>
-                  </Link>
+                  </div>
                 ) : (
                   <button
                     onClick={handleFollowClick}

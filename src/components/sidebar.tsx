@@ -10,6 +10,7 @@ const unbounded = Unbounded({
   subsets: ["latin"],
 });
 
+//Used for desktop
 export function Sidebar() {
   const { signOut } = useAuth();
   const { currentUser, unreadNotificationCount } = useApp();
@@ -32,7 +33,7 @@ export function Sidebar() {
   }, [showLogoutPopup]);
 
   return (
-    <aside className="w-64 p-4 border-r border-gray-800 flex flex-col h-screen">
+    <aside className="hidden md:flex w-64 p-4 border-r border-gray-800 flex-col h-screen">
       <div className="mb-8">
         <Link
           href="/home"
