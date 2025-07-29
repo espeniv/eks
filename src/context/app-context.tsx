@@ -43,6 +43,10 @@ interface AppContextType {
   fetchNotifications: () => Promise<void>;
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
+  deletePost: (postId: string) => Promise<{ success: boolean; error?: Error }>;
+  deleteComment: (
+    commentId: string
+  ) => Promise<{ success: boolean; error?: Error }>;
 }
 
 interface SupabaseProfile {
@@ -967,6 +971,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
+  //Deleting posts
+  const deletePost = async (
+    postId: string
+  ): Promise<{ success: boolean; error?: Error }> => {
+    try {
+      const { error } = await supabase.from("posts").delete().eq("id", postId);
+
+      if (error) {
+        console.error("Error deleting post:", error);
+        return { success: false, error };
+      }
+
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
+      setFollowingPosts((prev) => prev.filter((post) => post.id !== postId));
+      setComments((prev) =>
+        prev.filter((comment) => comment.postId !== postId)
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      return { success: false, error: error as Error };
+    }
+  };
+
+  //Deleting comments
+  const deleteComment = async (
+    commentId: string
+  ): Promise<{ success: boolean; error?: Error }> => {
+    try {
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", commentId);
+
+      if (error) {
+        console.error("Error deleting comment:", error);
+        return { success: false, error };
+      }
+
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      return { success: false, error: error as Error };
+    }
+  };
+
   const value: AppContextType = {
     posts,
     addPost,
@@ -990,6 +1043,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     fetchNotifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
+    deletePost,
+    deleteComment,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
