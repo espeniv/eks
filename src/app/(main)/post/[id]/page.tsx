@@ -107,11 +107,9 @@ export default function PostPage({
           <div
             className={`flex-1 min-w-0 ${
               depth === 1
-                ? "text-xs"
+                ? "text-xs md:text-sm"
                 : depth === 2
-                ? "text-[10px]"
-                : depth === 3
-                ? "text-[8px]"
+                ? "text-[8px] md:text-xs"
                 : "md:text-base"
             }`}
           >
