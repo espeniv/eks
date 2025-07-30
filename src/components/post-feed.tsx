@@ -44,7 +44,10 @@ export function PostFeed({
     <div
       ref={feedRef}
       data-feed-scrollable
-      style={{ overflowY: "auto", height: "100%" }}
+      style={{
+        overflowY: "auto",
+        height: window.innerWidth < 768 ? "90%" : "100%",
+      }}
     >
       {filteredPosts.length > 0 ? (
         filteredPosts.map((post: Post) => (
