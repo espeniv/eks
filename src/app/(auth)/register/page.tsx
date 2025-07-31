@@ -116,8 +116,10 @@ export default function RegisterPage() {
               If you do not want to create your own account you can log into the
               application as a guest by using the credentials
             </p>
-            <div className="text-sm">Email: guest@guest.com</div>
-            <div className="text-sm mb-4">Password: guestpassword</div>
+            <div className="text-sm text-white">Email: guest@guest.com</div>
+            <div className="text-sm mb-4 text-white">
+              Password: guestpassword
+            </div>
 
             <div className="flex justify-center">
               <Link
