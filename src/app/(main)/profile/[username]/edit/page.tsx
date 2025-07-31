@@ -16,6 +16,7 @@ export default function EditProfilePage({
   const router = useRouter();
 
   const [bio, setBio] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [selectedEmoji, setSelectedEmoji] = useState("👤");
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function EditProfilePage({
     if (currentUser) {
       setBio(currentUser.bio || "");
       setSelectedEmoji(currentUser.avatar || "👤");
+      setDisplayName(currentUser.displayName);
     }
   }, [currentUser, username, router]);
 
@@ -42,6 +44,7 @@ export default function EditProfilePage({
         .update({
           bio: bio.trim(),
           avatar_url: selectedEmoji,
+          display_name: displayName.trim(),
         })
         .eq("id", currentUser.id);
 
@@ -51,6 +54,7 @@ export default function EditProfilePage({
         ...currentUser,
         bio: bio.trim(),
         avatar: selectedEmoji,
+        displayName: displayName.trim(),
       };
 
       //To instantly see changes made after editing
@@ -117,7 +121,20 @@ export default function EditProfilePage({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm  font-bold text-gray-300 mb-2">
+            Display Name
+          </label>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-orange-500 transition-colors"
+            maxLength={32}
+            placeholder="Your display name"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-300 mb-2">
             Bio
           </label>
           <textarea
