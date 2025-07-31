@@ -63,7 +63,7 @@ export default function NotificationsPage() {
                     tabIndex={0}
                     role="link"
                   >
-                    {notification.sender.avatar}{" "}
+                    {notification.sender.avatar || "👤"}{" "}
                     {notification.sender.displayName}
                   </span>
                   liked your post.
@@ -107,7 +107,9 @@ export default function NotificationsPage() {
                     tabIndex={0}
                     role="link"
                   >
-                    {`${notification.sender.avatar} ${notification.sender.displayName}`}
+                    {`${notification.sender.avatar || "👤"} ${
+                      notification.sender.displayName
+                    }`}
                   </span>
                   <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`has commented on your post: "${truncateWithQuote(
                     notification.message,
@@ -151,7 +153,8 @@ export default function NotificationsPage() {
                   tabIndex={0}
                   role="link"
                 >
-                  {notification.sender.avatar} {notification.sender.displayName}
+                  {notification.sender.avatar || "👤"}{" "}
+                  {notification.sender.displayName}
                 </span>
                 started following you.
                 <span className="ml-auto text-xs text-gray-600">
@@ -223,7 +226,9 @@ export default function NotificationsPage() {
                     tabIndex={0}
                     role="link"
                   >
-                    {`${notification.sender.avatar} ${notification.sender.displayName}`}
+                    {`${notification.sender.avatar || "👤"} ${
+                      notification.sender.displayName
+                    }`}
                   </span>
                   <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`has replied to you: "${truncateWithQuote(
                     notification.message,
@@ -269,7 +274,7 @@ export default function NotificationsPage() {
                     tabIndex={0}
                     role="link"
                   >
-                    {notification.sender.avatar}{" "}
+                    {notification.sender.avatar || "👤"}{" "}
                     {notification.sender.displayName}
                   </span>
                   {notification.message}
