@@ -34,7 +34,7 @@ export default function NotificationsPage() {
             return (
               <Link key={notification.id} href={`/post/${notification.postId}`}>
                 <div
-                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 text-sm md:text-base bg-black ${
                     !notification.isRead
                       ? "border-orange-400"
                       : "border-gray-900"
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
             return (
               <Link key={notification.id} href={`/post/${notification.postId}`}>
                 <div
-                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 text-sm md:text-base bg-black ${
                     !notification.isRead
                       ? "border-orange-400"
                       : "border-gray-900"
@@ -111,9 +111,9 @@ export default function NotificationsPage() {
                       notification.sender.displayName
                     }`}
                   </span>
-                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`has commented on your post: "${truncateWithQuote(
+                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`commented on your post: "${truncateWithQuote(
                     notification.message,
-                    15
+                    8
                   )}`}</span>
                   <span className="ml-auto text-xs text-gray-600">
                     {formatRelativeTime(notification.createdAt)}
@@ -126,7 +126,7 @@ export default function NotificationsPage() {
             return (
               <div
                 key={notification.id}
-                className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                className={`mx-2 p-4 border rounded-xl flex items-center mb-4 text-sm md:text-base bg-black ${
                   !notification.isRead ? "border-orange-400" : "border-gray-900"
                 }`}
               >
@@ -167,7 +167,7 @@ export default function NotificationsPage() {
             return (
               <div
                 key={notification.id}
-                className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                className={`mx-2 p-4 border rounded-xl flex items-center mb-4 text-sm md:text-base bg-black ${
                   !notification.isRead ? "border-orange-400" : "border-gray-900"
                 }`}
               >
@@ -197,7 +197,7 @@ export default function NotificationsPage() {
             return (
               <Link key={notification.id} href={`/post/${notification.postId}`}>
                 <div
-                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 text-sm md:text-base bg-black ${
                     !notification.isRead
                       ? "border-orange-400"
                       : "border-gray-900"
@@ -245,7 +245,7 @@ export default function NotificationsPage() {
             return (
               <Link key={notification.id} href={`/post/${notification.postId}`}>
                 <div
-                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 bg-black ${
+                  className={`mx-2 p-4 border rounded-xl flex items-center mb-4 text-sm md:text-base bg-black ${
                     !notification.isRead
                       ? "border-orange-400"
                       : "border-gray-900"
