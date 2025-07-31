@@ -129,7 +129,7 @@ export default function EditProfilePage({
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-orange-500 transition-colors"
-            maxLength={32}
+            maxLength={15}
             placeholder="Your display name"
           />
         </div>
