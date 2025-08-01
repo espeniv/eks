@@ -2,6 +2,7 @@
 
 import { Post } from "@/lib/types";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
 import { formatRelativeTime, parseMentions } from "@/lib/utils";
@@ -120,7 +121,18 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
             <p className="mt-1 whitespace-pre-wrap font-mono max-w-lg break-words">
               {parseMentions(post.content)}
             </p>
-            <p>{post.imageUrl}</p>
+            {post.imageUrl ? (
+              <Image
+                src={post.imageUrl}
+                alt="Attached image"
+                width={250}
+                height={250}
+                className="rounded-xl"
+                style={{ maxWidth: "100%", height: "auto" }}
+              />
+            ) : (
+              ""
+            )}
           </div>
           <div>
             <button
