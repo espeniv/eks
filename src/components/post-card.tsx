@@ -95,7 +95,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                       className="text-gray-500 hover:text-red-600 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        deletePost(post.id);
+                        deletePost(post.id, post.imageUrl);
                         router.push("/home");
                       }}
                     >
@@ -120,6 +120,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
             <p className="mt-1 whitespace-pre-wrap font-mono max-w-lg break-words">
               {parseMentions(post.content)}
             </p>
+            <p>{post.imageUrl}</p>
           </div>
           <div>
             <button

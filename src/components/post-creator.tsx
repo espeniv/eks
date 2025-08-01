@@ -57,13 +57,6 @@ export function PostCreator() {
             >
               {remainingChars} characters remaining
             </span>
-            <button
-              type="submit"
-              disabled={!postContent.trim() || remainingChars < 0}
-              className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50"
-            >
-              Post
-            </button>
             <div>
               <input
                 ref={fileInputRef}
@@ -73,12 +66,21 @@ export function PostCreator() {
                 className="hidden"
               />
               <button
+                type="button"
+                disabled={!!selectedFile}
                 onClick={() => fileInputRef.current?.click()}
                 className="border px-4 py-2 rounded"
               >
-                Upload Image
+                {selectedFile ? "File attached" : "Upload File"}
               </button>
             </div>
+            <button
+              type="submit"
+              disabled={!postContent.trim() || remainingChars < 0}
+              className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50"
+            >
+              Post
+            </button>
           </div>
         </div>
       </div>

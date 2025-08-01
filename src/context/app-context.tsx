@@ -44,7 +44,10 @@ interface AppContextType {
   fetchNotifications: () => Promise<void>;
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
-  deletePost: (postId: string) => Promise<{ success: boolean; error?: Error }>;
+  deletePost: (
+    postId: string,
+    imageUrl?: string | null
+  ) => Promise<{ success: boolean; error?: Error }>;
   deleteComment: (
     commentId: string
   ) => Promise<{ success: boolean; error?: Error }>;
@@ -69,7 +72,7 @@ interface SupabasePost {
   is_liked_by_user: boolean;
   author_id: string;
   profiles: SupabaseProfile;
-  imageUrl: string | null;
+  image_url: string | null;
 }
 
 interface Notification {
@@ -212,6 +215,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         is_liked_by_user,
         author_id,
         comment_count,
+        image_url,
         profiles!posts_author_id_fkey (
           id,
           username,
@@ -253,7 +257,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         likes: post.likes_count || 0,
         createdAt: post.created_at,
         commentCount: post.comment_count || 0,
-        imageUrl: post.imageUrl,
+        imageUrl: post.image_url,
       }));
       setPosts(formattedPosts);
 
@@ -771,6 +775,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           `
           id,
           content,
+          image_url,
           created_at,
           likes_count,
           is_liked_by_user,
@@ -800,7 +805,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           createdAt: post.created_at,
           likes: post.likes_count || 0,
           commentCount: post.comment_count || 0,
-          imageUrl: post.imageUrl,
+          imageUrl: post.image_url,
           author: {
             id: post.profiles.id,
             username: post.profiles.username,
@@ -1004,7 +1009,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   //Deleting posts
   const deletePost = async (
-    postId: string
+    postId: string,
+    imageUrl?: string | null
   ): Promise<{ success: boolean; error?: Error }> => {
     try {
       const { error } = await supabase.from("posts").delete().eq("id", postId);
@@ -1012,6 +1018,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (error) {
         console.error("Error deleting post:", error);
         return { success: false, error };
+      }
+
+      //To delete attached image from bucket
+      if (imageUrl) {
+        const path = imageUrl.split("/post-images/")[1];
+        if (path) {
+          const { error: storageError } = await supabase.storage
+            .from("post-images")
+            .remove([path]);
+          if (storageError) {
+            console.error("Failed to delete image from storage:", storageError);
+          } else {
+            console.log("Image deleted from storage:", path);
+          }
+        }
       }
 
       setPosts((prev) => prev.filter((post) => post.id !== postId));
