@@ -122,14 +122,16 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
               {parseMentions(post.content)}
             </p>
             {post.imageUrl ? (
-              <Image
-                src={post.imageUrl}
-                alt="Attached image"
-                width={250}
-                height={250}
-                className="rounded-xl"
-                style={{ maxWidth: "100%", height: "auto" }}
-              />
+              <div className="flex justfiy-center my-3">
+                <Image
+                  src={post.imageUrl}
+                  alt="Attached image"
+                  width={400}
+                  height={300}
+                  className="rounded-lg w-full max-w-md"
+                  style={{ height: "auto" }}
+                />
+              </div>
             ) : (
               ""
             )}

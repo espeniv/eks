@@ -57,7 +57,7 @@ export function PostCreator() {
             >
               {remainingChars} characters remaining
             </span>
-            <div>
+            <div className="flex items-center space-x-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -65,22 +65,53 @@ export function PostCreator() {
                 onChange={handleFileChange}
                 className="hidden"
               />
+              {!selectedFile ? (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center px-3 py-1 md:px-6 md:py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white text-xs md:text-sm font-medium transition cursor-pointer"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586"
+                    />
+                  </svg>
+                  Attach Image
+                </button>
+              ) : (
+                <div className="flex items-center bg-gray-900 px-3 py-1 md:px-6 md:py-2 rounded-full text-xs md:text-sm text-white font-medium">
+                  <span className="truncate max-w-[92px] select-none">
+                    {selectedFile.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                    className="ml-2 text-red-600 hover:text-red-400 text-base cursor-pointer"
+                    aria-label="Remove file"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               <button
-                type="button"
-                disabled={!!selectedFile}
-                onClick={() => fileInputRef.current?.click()}
-                className="border px-4 py-2 rounded"
+                type="submit"
+                disabled={!postContent.trim() || remainingChars < 0}
+                className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50"
               >
-                {selectedFile ? "File attached" : "Upload File"}
+                Post
               </button>
             </div>
-            <button
-              type="submit"
-              disabled={!postContent.trim() || remainingChars < 0}
-              className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50"
-            >
-              Post
-            </button>
           </div>
         </div>
       </div>
