@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/context/app-context";
+import { FileUpload } from "./file-upload";
 
 export function PostCreator() {
   const { addPost, currentUser } = useApp();
@@ -56,6 +57,7 @@ export function PostCreator() {
             >
               Post
             </button>
+            <FileUpload />
           </div>
         </div>
       </div>
