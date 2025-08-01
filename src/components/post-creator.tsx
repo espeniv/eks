@@ -69,7 +69,7 @@ export function PostCreator() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center px-3 py-1 md:px-6 md:py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white text-xs md:text-sm font-medium transition cursor-pointer"
+                  className="flex items-center py-1.5 px-3 md:px-6 md:py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white text-xs md:text-sm font-medium transition cursor-pointer"
                 >
                   <svg
                     className="w-4 h-4 mr-2"
@@ -87,8 +87,8 @@ export function PostCreator() {
                   Attach Image
                 </button>
               ) : (
-                <div className="flex items-center bg-gray-900 px-3 py-1 md:px-6 md:py-2 rounded-full text-xs md:text-sm text-white font-medium">
-                  <span className="truncate max-w-[92px] select-none">
+                <div className="flex items-center bg-gray-900 px-3 py-0.5 md:px-6 rounded-full text-xs md:text-sm text-white font-medium">
+                  <span className="truncate max-w-[80px] md:max-w-[92px] select-none">
                     {selectedFile.name}
                   </span>
                   <button
