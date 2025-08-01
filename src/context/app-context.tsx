@@ -19,7 +19,8 @@ interface AppContextType {
   posts: Post[];
   fetchPosts: () => void;
   addPost: (
-    content: string
+    content: string,
+    file: File | null
   ) => Promise<{ success: boolean; post?: Post; error?: Error }>;
   getPostById: (id: string) => Post | null;
   togglePostLike: (postId: string) => Promise<void>;
@@ -68,6 +69,7 @@ interface SupabasePost {
   is_liked_by_user: boolean;
   author_id: string;
   profiles: SupabaseProfile;
+  imageUrl: string | null;
 }
 
 interface Notification {
@@ -251,6 +253,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         likes: post.likes_count || 0,
         createdAt: post.created_at,
         commentCount: post.comment_count || 0,
+        imageUrl: post.imageUrl,
       }));
       setPosts(formattedPosts);
 
@@ -295,7 +298,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addPost = async (
-    content: string
+    content: string,
+    file?: File | null
   ): Promise<{ success: boolean; post?: Post; error?: Error }> => {
     if (!currentUser) {
       return { success: false, error: new Error("No user logged in") };
@@ -323,6 +327,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         console.error("Error creating post:", error);
         throw error;
       }
+
+      let imageUrl: string | null = null;
+
+      if (file) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("post-images")
+          .upload(`public/${Date.now()}_${file.name}`, file);
+
+        if (uploadError) {
+          console.error("Image upload failed:", uploadError);
+          //Delete the post here if image fails to upload?
+          return { success: false, error: uploadError };
+        }
+
+        imageUrl = supabase.storage
+          .from("post-images")
+          .getPublicUrl(uploadData.path).data.publicUrl;
+
+        // Update the post with the image URL
+        await supabase
+          .from("posts")
+          .update({ image_url: imageUrl })
+          .eq("id", data.id);
+      }
+
       const newPost: Post = {
         id: data.id,
         content: data.content,
@@ -337,6 +366,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         likes: data.likes_count || 0,
         createdAt: data.created_at,
+        imageUrl: imageUrl || null,
       };
 
       setPosts((prev) => [newPost, ...prev]);
@@ -770,6 +800,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           createdAt: post.created_at,
           likes: post.likes_count || 0,
           commentCount: post.comment_count || 0,
+          imageUrl: post.imageUrl,
           author: {
             id: post.profiles.id,
             username: post.profiles.username,

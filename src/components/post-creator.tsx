@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useApp } from "@/context/app-context";
-import { FileUpload } from "./file-upload";
 
 export function PostCreator() {
   const { addPost, currentUser } = useApp();
   const [postContent, setPostContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePostSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (postContent.trim()) {
-      addPost(postContent);
+      addPost(postContent, selectedFile);
       setPostContent("");
+      setSelectedFile(null);
       setRemainingChars(140);
     }
   };
@@ -24,6 +26,11 @@ export function PostCreator() {
       setPostContent(newValue);
       setRemainingChars(140 - newValue.length);
     }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setSelectedFile(file);
   };
 
   return (
@@ -57,7 +64,21 @@ export function PostCreator() {
             >
               Post
             </button>
-            <FileUpload />
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="border px-4 py-2 rounded"
+              >
+                Upload Image
+              </button>
+            </div>
           </div>
         </div>
       </div>
