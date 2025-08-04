@@ -13,11 +13,12 @@ export function PostCreator() {
 
   const handlePostSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (postContent.trim()) {
+    if (postContent.trim() || selectedFile) {
       addPost(postContent, selectedFile);
       setPostContent("");
       setSelectedFile(null);
       setRemainingChars(140);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -31,6 +32,7 @@ export function PostCreator() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (fileInputRef.current) fileInputRef.current.value = "";
     if (file) {
       //Limit is 3MB on backend
       if (file.size > 3 * 1024 * 1024) {
@@ -124,9 +126,11 @@ export function PostCreator() {
               <button
                 type="submit"
                 disabled={
-                  !postContent.trim() || remainingChars < 0 || showFileError
+                  (!selectedFile && !postContent) ||
+                  remainingChars < 0 ||
+                  showFileError
                 }
-                className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50"
+                className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50 cursor-pointer"
               >
                 Post
               </button>
