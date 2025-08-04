@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useApp } from "@/context/app-context";
+import Image from "next/image";
 
 export function PostCreator() {
   const { addPost, currentUser } = useApp();
@@ -9,7 +10,9 @@ export function PostCreator() {
   const [remainingChars, setRemainingChars] = useState(140);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showFileError, setShowFileError] = useState<boolean>(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handlePostSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +22,7 @@ export function PostCreator() {
       setSelectedFile(null);
       setRemainingChars(140);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      setPreviewUrl(null);
     }
   };
 
@@ -27,6 +31,11 @@ export function PostCreator() {
     if (newValue.length <= postContent.length || newValue.length <= 140) {
       setPostContent(newValue);
       setRemainingChars(140 - newValue.length);
+
+      //Smooth text area size adjustment
+      const textarea = e.target;
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
     }
   };
 
@@ -39,6 +48,10 @@ export function PostCreator() {
         setShowFileError(true);
       }
       setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
     }
   };
 
@@ -50,14 +63,43 @@ export function PostCreator() {
       <div className="flex space-x-4">
         <div className="flex-1">
           <textarea
+            ref={textareaRef}
             value={postContent}
             onChange={handlePostChange}
             placeholder={`What's happening ${
               currentUser?.displayName.split(" ")[0]
             }?`}
-            className="w-full bg-transparent text-base md:text-xl placeholder-gray-500 resize-none outline-none border-none"
-            rows={3}
+            className="w-full bg-transparent text-base md:text-xl placeholder-gray-500 resize-none outline-none border-none overflow-hidden"
+            rows={previewUrl ? 1 : 3}
           />
+          {previewUrl && (
+            <div className="relative inline-block my-5">
+              <Image
+                src={previewUrl}
+                alt="Preview image"
+                width={300}
+                height={100}
+                className="rounded-lg object-contain"
+                style={{ height: "auto" }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setShowFileError(false);
+                  setPreviewUrl(null);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = "auto";
+                  }
+                }}
+                className="absolute top-[-16] right-[-16] bg-red-600 text-white rounded-full py-1 px-2.5  hover:bg-red-500 border-black border-6 transition cursor-pointer"
+                aria-label="Remove preview"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <span
               className={`text-xs md:text-sm select-none ${
@@ -74,7 +116,7 @@ export function PostCreator() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              {!selectedFile ? (
+              {!selectedFile && (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -95,33 +137,6 @@ export function PostCreator() {
                   </svg>
                   Attach Image
                 </button>
-              ) : (
-                <div
-                  className={`flex items-center bg-gray-900 px-3 py-0.5 md:py-2 md:px-6 rounded-full ${
-                    showFileError ? "bg-red-700" : "bg-green-600"
-                  } text-xs md:text-sm text-white font-medium`}
-                >
-                  <span className="truncate max-w-[80px] md:max-w-[110px] select-none">
-                    {showFileError ? "File is too big" : selectedFile.name}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      setShowFileError(false);
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                    className={`ml-2 text-white ${
-                      showFileError
-                        ? "hover:text-red-300"
-                        : "hover:text-red-600"
-                    }
-                     text-base cursor-pointer`}
-                    aria-label="Remove file"
-                  >
-                    ✕
-                  </button>
-                </div>
               )}
               <button
                 type="submit"
@@ -130,9 +145,13 @@ export function PostCreator() {
                   remainingChars < 0 ||
                   showFileError
                 }
-                className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50 cursor-pointer"
+                className={`bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50 ${
+                  showFileError
+                    ? "disabled:opacity-80 bg-red-600 hover:bg-red-600 cursor-not-allowed"
+                    : "cursor-pointer disabled:opacity-50"
+                }`}
               >
-                Post
+                {showFileError ? "File is too big" : "Post"}
               </button>
             </div>
           </div>
