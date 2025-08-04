@@ -34,8 +34,8 @@ export function PostCreator() {
     const file = e.target.files?.[0];
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (file) {
-      //Limit is 3MB on backend
-      if (file.size > 3 * 1024 * 1024) {
+      //Limit is 5MB on backend
+      if (file.size > 5 * 1024 * 1024) {
         setShowFileError(true);
       }
       setSelectedFile(file);
