@@ -145,11 +145,7 @@ export function PostCreator() {
                   remainingChars < 0 ||
                   showFileError
                 }
-                className={`bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50 ${
-                  showFileError
-                    ? "disabled:opacity-80 bg-red-600 hover:bg-red-600 cursor-not-allowed"
-                    : "cursor-pointer disabled:opacity-50"
-                }`}
+                className={`bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
               >
                 {showFileError ? "File is too big" : "Post"}
               </button>
