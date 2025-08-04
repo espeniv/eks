@@ -8,6 +8,7 @@ export function PostCreator() {
   const [postContent, setPostContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showFileError, setShowFileError] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePostSubmit = (e: React.FormEvent) => {
@@ -30,7 +31,13 @@ export function PostCreator() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setSelectedFile(file);
+    if (file) {
+      //Limit is 3MB on backend
+      if (file.size > 3 * 1024 * 1024) {
+        setShowFileError(true);
+      }
+      setSelectedFile(file);
+    }
   };
 
   return (
@@ -87,17 +94,27 @@ export function PostCreator() {
                   Attach Image
                 </button>
               ) : (
-                <div className="flex items-center bg-gray-900 px-3 py-0.5 md:px-6 rounded-full text-xs md:text-sm text-white font-medium">
-                  <span className="truncate max-w-[80px] md:max-w-[92px] select-none">
-                    {selectedFile.name}
+                <div
+                  className={`flex items-center bg-gray-900 px-3 py-0.5 md:py-2 md:px-6 rounded-full ${
+                    showFileError ? "bg-red-700" : "bg-green-600"
+                  } text-xs md:text-sm text-white font-medium`}
+                >
+                  <span className="truncate max-w-[80px] md:max-w-[110px] select-none">
+                    {showFileError ? "File is too big" : selectedFile.name}
                   </span>
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedFile(null);
+                      setShowFileError(false);
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
-                    className="ml-2 text-red-600 hover:text-red-400 text-base cursor-pointer"
+                    className={`ml-2 text-white ${
+                      showFileError
+                        ? "hover:text-red-300"
+                        : "hover:text-red-600"
+                    }
+                     text-base cursor-pointer`}
                     aria-label="Remove file"
                   >
                     ✕
@@ -106,7 +123,9 @@ export function PostCreator() {
               )}
               <button
                 type="submit"
-                disabled={!postContent.trim() || remainingChars < 0}
+                disabled={
+                  !postContent.trim() || remainingChars < 0 || showFileError
+                }
                 className="bg-orange-500 text-white px-3 py-1 md:px-6 md:py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50"
               >
                 Post
