@@ -120,22 +120,40 @@ export function PostCreator() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center py-1.5 px-3 md:px-6 md:py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white text-xs md:text-sm font-medium transition cursor-pointer"
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-white hover:text-orange-400 transition cursor-pointer"
+                  aria-label="Upload image"
                 >
                   <svg
-                    className="w-4 h-4 mr-2"
+                    className="w-6.5 h-6.5"
                     fill="none"
+                    viewBox="0 0 24 24"
                     stroke="currentColor"
                     strokeWidth={2}
-                    viewBox="0 0 24 24"
                   >
+                    <rect x="4" y="4" width="16" height="16" rx="3" />
+                    <circle cx="9" cy="9" r="2.5" />
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586"
+                      d="M20 15l-5-5a2 2 0 0 0-2.828 0l-7.172 7"
                     />
+                    <g>
+                      <line
+                        x1="19"
+                        y1="17.7"
+                        x2="19"
+                        y2="20.3"
+                        strokeWidth={1.5}
+                      />
+                      <line
+                        x1="17.7"
+                        y1="19"
+                        x2="20.3"
+                        y2="19"
+                        strokeWidth={1.5}
+                      />
+                    </g>
                   </svg>
-                  Attach Image
                 </button>
               )}
               <button
