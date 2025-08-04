@@ -138,7 +138,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
           </div>
           <div>
             <button
-              className={`flex items-center space-x-2 ml-4 pr-3 ${
+              className={`flex items-center space-x-2 ml-2 ${
                 currentUser?.id !== post.author.id
                   ? "hover:text-orange-400 rounded-full transition-colors cursor-pointer"
                   : ""
@@ -148,13 +148,60 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                 handleLikeClick();
               }}
             >
-              <span>{isPostLikedByUser(post.id) ? "❤️" : "🤍"}</span>
-              <span>{post.likes}</span>
+              <span>
+                {isPostLikedByUser(post.id) ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-red-600 w-6 h-6 ml-1"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M21.19 12.683c-2.5 5.41-8.62 8.2-8.88 8.32a.848.848 0 0 1-.62 0c-.25-.12-6.38-2.91-8.88-8.32c-1.55-3.37-.69-7 1-8.56a4.93 4.93 0 0 1 4.36-1.05a6.16 6.16 0 0 1 3.78 2.62a6.15 6.15 0 0 1 3.79-2.62a4.93 4.93 0 0 1 4.36 1.05c1.78 1.56 2.65 5.19 1.09 8.56"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6 ml-1"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M12 7.23c-1.733-3.924-5.764-4.273-7.641-2.562c-1.529 1.373-2.263 4.665-.867 7.695C5.9 17.573 12 20.309 12 20.309s6.101-2.736 8.508-7.946c1.396-3.03.662-6.322-.867-7.695C17.764 2.957 13.733 3.306 12 7.229"
+                    />
+                  </svg>
+                )}
+              </span>
+              <span className="text-base md:text-lg">{post.likes}</span>
             </button>
             {!singlePostView ? (
-              <div className="flex items-center space-x-2 ml-4 pr-3">
-                <span>💬</span>
-                <span>{post.commentCount ?? 0}</span>
+              <div className="flex items-center space-x-2 ml-2 pr-3">
+                <span className="text-lg">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6 ml-1"
+                    viewBox="0 0 24 24"
+                  >
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M21.25 12a9.226 9.226 0 0 1-2.705 6.54A9.251 9.251 0 0 1 12 21.25a9.189 9.189 0 0 1-3.795-.81l-3.867.572a1.195 1.195 0 0 1-1.361-1.43l.537-3.923A8.943 8.943 0 0 1 2.75 12a9.228 9.228 0 0 1 2.705-6.54A9.25 9.25 0 0 1 12 2.75a9.26 9.26 0 0 1 6.545 2.71A9.236 9.236 0 0 1 21.25 12" />
+                      <path d="M12 12.61a.61.61 0 1 0 0-1.221a.61.61 0 0 0 0 1.221m4.279 0a.61.61 0 1 0 0-1.221a.61.61 0 0 0 0 1.221m-8.558 0a.61.61 0 1 0 .001-1.221a.61.61 0 0 0 0 1.221" />
+                    </g>
+                  </svg>
+                </span>
+                <span className="text-base md:text-lg">
+                  {post.commentCount ?? 0}
+                </span>
               </div>
             ) : null}
           </div>
