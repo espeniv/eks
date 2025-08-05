@@ -81,7 +81,10 @@ export function Navbar() {
           </svg>
         )}
         {unreadNotificationCount > 0 && (
-          <span className="absolute top-[3px] right-[39px] bg-orange-500 border-black border-2 rounded-full w-3 h-3"></span>
+          <span className="absolute top-[-2] right-[32px] inline-flex items-center justify-center bg-orange-500 text-white text-[10px] border-black group-hover:border-gray-900 border-4 font-regular rounded-full w-5 h-5 mb-0.25">
+            {" "}
+            {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+          </span>
         )}
         <span className="text-xs">Notifications</span>
       </Link>

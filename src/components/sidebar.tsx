@@ -96,7 +96,7 @@ export function Sidebar() {
         </Link>
         <Link
           href="/notifications"
-          className="block p-3 rounded-full hover:bg-gray-900 relative"
+          className="block p-3 rounded-full hover:bg-gray-900 relative group"
         >
           <span className="flex">
             {pathname === "/notifications" ? (
@@ -130,14 +130,14 @@ export function Sidebar() {
             )}
             Notifications
             {unreadNotificationCount > 0 && (
-              <span className="ml-[-122] mt-[-5] align-middle">
+              <span className="ml-[-124] mt-[-10] align-middle">
                 <span
-                  className="inline-flex items-center justify-center bg-orange-500 text-white text-[10px] border-black border-2 font-bold rounded-full w-3 h-3 mb-0.25"
+                  className="inline-flex items-center justify-center bg-orange-500 text-white text-[10px] border-black group-hover:border-gray-900 border-4 font-bold rounded-full w-5 h-5 mb-0.25"
                   style={{ minWidth: 8 }}
                 >
-                  {/* unreadNotificationCount > 99
+                  {unreadNotificationCount > 99
                     ? "99+"
-                    : unreadNotificationCount */}
+                    : unreadNotificationCount}
                 </span>
               </span>
             )}
