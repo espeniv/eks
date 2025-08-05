@@ -90,17 +90,18 @@ export default function RegisterPage() {
     }
     toast.success("User created", {
       style: {
-        background: "#000000",
-        color: "orange",
-        fontSize: "16px",
+        background: "#ea580c",
+        color: "black",
+        fontSize: "14px",
         border: "0px solid black",
+        boxShadow:
+          "0 16px 64px 0 rgba(0,0,0,0.75), 0 8px 32px 0 rgba(0,0,0,0.55)",
         textAlign: "center",
         justifyContent: "center",
-        padding: "12px 24px",
-        marginBottom: "20px",
+        userSelect: "none",
       },
     });
-    router.push("/login");
+    router.push("/");
     setLoading(false);
   };
 

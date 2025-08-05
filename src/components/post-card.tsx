@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/context/app-context";
 import { formatRelativeTime, parseMentions } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface PostCardProps {
   post: Post;
@@ -53,6 +54,23 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
     if (currentUser?.id !== post.author.id) {
       togglePostLike(post.id);
     }
+  };
+
+  const handleCopyLinkClick = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+    toast(`Copied post link`, {
+      style: {
+        background: "#ea580c",
+        color: "black",
+        fontSize: "14px",
+        border: "0px solid black",
+        boxShadow:
+          "0 16px 64px 0 rgba(0,0,0,0.75), 0 8px 32px 0 rgba(0,0,0,0.55)",
+        textAlign: "center",
+        justifyContent: "center",
+        userSelect: "none",
+      },
+    });
   };
 
   return (
@@ -127,7 +145,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   alt="Attached image"
                   width={400}
                   height={300}
-                  className="rounded-lg w-[90%1] object-cover"
+                  className="rounded-lg w-[90%] object-cover"
                   style={{ height: "auto" }}
                 />
               </div>
@@ -202,9 +220,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                 className="flex items-center space-x-2 hover:text-orange-400 rounded-full transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/post/${post.id}`
-                  );
+                  handleCopyLinkClick();
                 }}
                 title="Copy link"
               >
