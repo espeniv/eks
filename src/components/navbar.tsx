@@ -81,7 +81,7 @@ export function Navbar() {
           </svg>
         )}
         {unreadNotificationCount > 0 && (
-          <span className="absolute top-[5px] right-[35px] bg-orange-500 rounded-full w-2.5 h-2.5"></span>
+          <span className="absolute top-[3px] right-[39px] bg-orange-500 border-black border-2 rounded-full w-3 h-3"></span>
         )}
         <span className="text-xs">Notifications</span>
       </Link>
