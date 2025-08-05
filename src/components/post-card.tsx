@@ -56,8 +56,29 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
     }
   };
 
+  function copyToClipboard(text: string) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).catch();
+    } else {
+      //Required for older browsers/phone browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand("copy");
+      } catch (error) {
+        console.log(error);
+      }
+      document.body.removeChild(textarea);
+    }
+  }
+
   const handleCopyLinkClick = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+    copyToClipboard(`${window.location.origin}/post/${post.id}`);
     toast(`Copied link to post`, {
       style: {
         background: "#ea580c",
@@ -69,6 +90,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
         textAlign: "center",
         justifyContent: "center",
         userSelect: "none",
+        borderRadius: "50px",
       },
     });
   };

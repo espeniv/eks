@@ -99,6 +99,7 @@ export default function RegisterPage() {
         textAlign: "center",
         justifyContent: "center",
         userSelect: "none",
+        borderRadius: "50px",
       },
     });
     router.push("/");
