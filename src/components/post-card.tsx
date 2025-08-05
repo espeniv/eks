@@ -58,7 +58,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
 
   const handleCopyLinkClick = () => {
     navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
-    toast(`Copied post link`, {
+    toast(`Copied link to post`, {
       style: {
         background: "#ea580c",
         color: "black",
@@ -150,7 +150,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                 />
               </div>
             )}
-            <div className="flex items-center space-x-6 mt-4">
+            <div className="flex items-center justify-between space-x-6 mt-2 max-w-[90%] mb-[-4]">
               <button
                 className={`flex items-center space-x-2 ${
                   currentUser?.id !== post.author.id
@@ -162,11 +162,11 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   handleLikeClick();
                 }}
               >
-                <span>
+                <span className="group flex items-center space-x-2">
                   {isPostLikedByUser(post.id) ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="text-red-600 w-6 h-6 ml-1"
+                      className="text-red-600 w-6 h-6"
                       viewBox="0 0 24 24"
                     >
                       <path
@@ -177,7 +177,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="w-6 h-6 ml-1"
+                      className="w-6 h-6 text-gray-500 group-hover:text-orange-500"
                       viewBox="0 0 24 24"
                     >
                       <path
@@ -190,14 +190,17 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                       />
                     </svg>
                   )}
+                  <span className="text-base md:text-lg font-semibold text-gray-500 group-hover:text-orange-500 min-w-[2ch] ml-[-10]">
+                    {post.likes}
+                  </span>
                 </span>
-                <span className="text-base md:text-lg">{post.likes}</span>
               </button>
-              <div className="flex items-center space-x-2">
+              <span className="text-gray-500 text-2xl">·</span>
+              <div className="flex items-center space-x-2 text-gray-500 hover:text-orange-500 cursor-pointer">
                 <span className="text-lg">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-6 ml-1"
+                    className="w-6 h-6"
                     viewBox="0 0 24 24"
                   >
                     <g
@@ -212,12 +215,13 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                     </g>
                   </svg>
                 </span>
-                <span className="text-base md:text-lg">
+                <span className="text-base font-semibold md:text-lg min-w-[2ch] ml-[-4]">
                   {post.commentCount ?? 0}
                 </span>
               </div>
+              <span className="text-gray-500 text-2xl">·</span>
               <button
-                className="flex items-center space-x-2 hover:text-orange-400 rounded-full transition-colors cursor-pointer"
+                className="flex items-center space-x-2 rounded-full transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCopyLinkClick();
@@ -227,7 +231,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="text-white hover:text-orange-400 w-5 h-5"
+                    className="text-gray-500 hover:text-orange-400 w-5 h-5"
                     viewBox="0 0 24 24"
                   >
                     <path
