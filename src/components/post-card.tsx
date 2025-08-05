@@ -166,7 +166,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   {isPostLikedByUser(post.id) ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="text-red-600 w-6 h-6"
+                      className="text-orange-500 w-6 h-6"
                       viewBox="0 0 24 24"
                     >
                       <path
@@ -177,7 +177,11 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="w-6 h-6 text-gray-500 group-hover:text-orange-500"
+                      className={`w-6 h-6 text-gray-500 ${
+                        post.author.id !== currentUser?.id
+                          ? "group-hover:text-orange-500 cursor-pointer"
+                          : ""
+                      }`}
                       viewBox="0 0 24 24"
                     >
                       <path
@@ -185,12 +189,18 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                         stroke="currentColor"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth="1.5"
+                        strokeWidth="2"
                         d="M12 7.23c-1.733-3.924-5.764-4.273-7.641-2.562c-1.529 1.373-2.263 4.665-.867 7.695C5.9 17.573 12 20.309 12 20.309s6.101-2.736 8.508-7.946c1.396-3.03.662-6.322-.867-7.695C17.764 2.957 13.733 3.306 12 7.229"
                       />
                     </svg>
                   )}
-                  <span className="text-base md:text-lg font-semibold text-gray-500 group-hover:text-orange-500 min-w-[2ch] ml-[-10]">
+                  <span
+                    className={`text-base md:text-lg font-semibold text-gray-500 min-w-[2ch] ml-[-10] ${
+                      post.author.id !== currentUser?.id
+                        ? "group-hover:text-orange-500 cursor-pointer"
+                        : ""
+                    }`}
+                  >
                     {post.likes}
                   </span>
                 </span>
@@ -208,7 +218,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                       stroke="currentColor"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth="1.5"
+                      strokeWidth="2"
                     >
                       <path d="M21.25 12a9.226 9.226 0 0 1-2.705 6.54A9.251 9.251 0 0 1 12 21.25a9.189 9.189 0 0 1-3.795-.81l-3.867.572a1.195 1.195 0 0 1-1.361-1.43l.537-3.923A8.943 8.943 0 0 1 2.75 12a9.228 9.228 0 0 1 2.705-6.54A9.25 9.25 0 0 1 12 2.75a9.26 9.26 0 0 1 6.545 2.71A9.236 9.236 0 0 1 21.25 12" />
                       <path d="M12 12.61a.61.61 0 1 0 0-1.221a.61.61 0 0 0 0 1.221m4.279 0a.61.61 0 1 0 0-1.221a.61.61 0 0 0 0 1.221m-8.558 0a.61.61 0 1 0 .001-1.221a.61.61 0 0 0 0 1.221" />
