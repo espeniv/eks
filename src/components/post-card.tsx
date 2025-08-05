@@ -72,7 +72,6 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
             )}
           </div>
         </Link>
-
         <div className="flex-1 flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-2">
@@ -121,66 +120,62 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
             <p className="mt-1 whitespace-pre-wrap font-mono max-w-lg break-words">
               {parseMentions(post.content)}
             </p>
-            {post.imageUrl ? (
-              <div className="flex justfiy-center my-3">
+            {post.imageUrl && (
+              <div className="my-3">
                 <Image
                   src={post.imageUrl}
                   alt="Attached image"
                   width={400}
                   height={300}
-                  className="rounded-lg w-full max-w-md"
+                  className="rounded-lg w-[90%1] object-cover"
                   style={{ height: "auto" }}
                 />
               </div>
-            ) : (
-              ""
             )}
-          </div>
-          <div>
-            <button
-              className={`flex items-center space-x-2 ml-2 ${
-                currentUser?.id !== post.author.id
-                  ? "hover:text-orange-400 rounded-full transition-colors cursor-pointer"
-                  : ""
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLikeClick();
-              }}
-            >
-              <span>
-                {isPostLikedByUser(post.id) ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-red-600 w-6 h-6 ml-1"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M21.19 12.683c-2.5 5.41-8.62 8.2-8.88 8.32a.848.848 0 0 1-.62 0c-.25-.12-6.38-2.91-8.88-8.32c-1.55-3.37-.69-7 1-8.56a4.93 4.93 0 0 1 4.36-1.05a6.16 6.16 0 0 1 3.78 2.62a6.15 6.15 0 0 1 3.79-2.62a4.93 4.93 0 0 1 4.36 1.05c1.78 1.56 2.65 5.19 1.09 8.56"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-6 ml-1"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M12 7.23c-1.733-3.924-5.764-4.273-7.641-2.562c-1.529 1.373-2.263 4.665-.867 7.695C5.9 17.573 12 20.309 12 20.309s6.101-2.736 8.508-7.946c1.396-3.03.662-6.322-.867-7.695C17.764 2.957 13.733 3.306 12 7.229"
-                    />
-                  </svg>
-                )}
-              </span>
-              <span className="text-base md:text-lg">{post.likes}</span>
-            </button>
-            {!singlePostView ? (
-              <div className="flex items-center space-x-2 ml-2 pr-3">
+            <div className="flex items-center space-x-6 mt-4">
+              <button
+                className={`flex items-center space-x-2 ${
+                  currentUser?.id !== post.author.id
+                    ? "hover:text-orange-400 rounded-full transition-colors cursor-pointer"
+                    : ""
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLikeClick();
+                }}
+              >
+                <span>
+                  {isPostLikedByUser(post.id) ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-red-600 w-6 h-6 ml-1"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M21.19 12.683c-2.5 5.41-8.62 8.2-8.88 8.32a.848.848 0 0 1-.62 0c-.25-.12-6.38-2.91-8.88-8.32c-1.55-3.37-.69-7 1-8.56a4.93 4.93 0 0 1 4.36-1.05a6.16 6.16 0 0 1 3.78 2.62a6.15 6.15 0 0 1 3.79-2.62a4.93 4.93 0 0 1 4.36 1.05c1.78 1.56 2.65 5.19 1.09 8.56"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-6 h-6 ml-1"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.5"
+                        d="M12 7.23c-1.733-3.924-5.764-4.273-7.641-2.562c-1.529 1.373-2.263 4.665-.867 7.695C5.9 17.573 12 20.309 12 20.309s6.101-2.736 8.508-7.946c1.396-3.03.662-6.322-.867-7.695C17.764 2.957 13.733 3.306 12 7.229"
+                      />
+                    </svg>
+                  )}
+                </span>
+                <span className="text-base md:text-lg">{post.likes}</span>
+              </button>
+              <div className="flex items-center space-x-2">
                 <span className="text-lg">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -203,7 +198,34 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   {post.commentCount ?? 0}
                 </span>
               </div>
-            ) : null}
+              <button
+                className="flex items-center space-x-2 hover:text-orange-400 rounded-full transition-colors cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/post/${post.id}`
+                  );
+                }}
+                title="Copy link"
+              >
+                <span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-white hover:text-orange-400 w-5 h-5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 13a5 5 0 0 0 8 1l4-4a1 1 0 0 0-7-7l-2 2m3 6a5 5 0 0 0-8-1l-4 4a1 1 0 0 0 7 7l2-2"
+                    />
+                  </svg>
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
