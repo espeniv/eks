@@ -136,7 +136,7 @@ export default function ProfilePage({
   return (
     <div className="h-screen flex flex-col max-w-2xl">
       <div className="flex-shrink-0 bg-black border-b border-gray-800">
-        <div className="p-4">
+        <div className="pt-0 md:pt-4 p-4">
           <div className="relative">
             <div className="flex justify-center pt-2 pb-6 md:pt-8">
               <Link

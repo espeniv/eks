@@ -72,7 +72,7 @@ export function CommentField({
             value={commentContent}
             onChange={handleCommentChange}
             placeholder="Write a reply..."
-            className="flex-1 w-full bg-transparent text-sm placeholder-gray-500 resize-none outline-none border border-gray-700 rounded-xl px-3 py-2"
+            className="flex-1 w-full bg-transparent text-base placeholder-gray-500 resize-none outline-none border border-gray-700 rounded-xl px-3 py-2"
             rows={2}
           />
           <div className="flex flex-col mb-2">

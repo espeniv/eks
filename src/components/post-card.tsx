@@ -167,12 +167,12 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   alt="Attached image"
                   width={400}
                   height={300}
-                  className="rounded-lg w-[90%] object-cover"
+                  className="rounded-lg w-[80%] md:w-[90%] object-cover"
                   style={{ height: "auto" }}
                 />
               </div>
             )}
-            <div className="flex items-center justify-between space-x-6 mt-2 max-w-[90%] mb-[-4]">
+            <div className="flex items-center justify-between space-x-6 mt-2 max-w-[80%] md:max-w-[90%] mb-[-4]">
               <button
                 className={`flex items-center space-x-2 ${
                   currentUser?.id !== post.author.id

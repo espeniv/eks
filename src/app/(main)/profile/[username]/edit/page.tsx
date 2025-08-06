@@ -74,7 +74,7 @@ export default function EditProfilePage({
 
   return (
     <div className="max-w-2xl">
-      <div className="border-b border-gray-800 p-4 sticky top-0 bg-black flex justify-between items-center">
+      <div className="border-b border-gray-800 px-4 py-2 md:p-4 sticky top-0 bg-black flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <h1 className="text-xl font-bold">Edit Profile</h1>
         </div>
@@ -96,20 +96,17 @@ export default function EditProfilePage({
 
       <div className="p-6 space-y-8">
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Choose Avatar
-          </h2>
           <div className="flex justify-center mb-6">
             <div className="w-30 h-30 bg-orange-600 rounded-full border-4 border-black flex items-center justify-center">
-              <span className="text-7xl">{selectedEmoji}</span>
+              <span className="text-6xl md:text-7xl">{selectedEmoji}</span>
             </div>
           </div>
-          <div className="grid grid-cols-8 gap-3">
+          <div className="grid grid-cols-8 gap-3 mr-2 md:ml-6">
             {emojis.map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => setSelectedEmoji(emoji)}
-                className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-2xl transition-colors cursor-pointer ${
+                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-2xl transition-colors cursor-pointer ${
                   selectedEmoji === emoji
                     ? "border-orange-500 bg-orange-500/20"
                     : "border-gray-700 hover:border-gray-500"
@@ -121,7 +118,7 @@ export default function EditProfilePage({
           </div>
         </div>
         <div>
-          <label className="block text-sm  font-bold text-gray-300 mb-2">
+          <label className="block text-sm  font-bold text-white mb-2">
             Display Name
           </label>
           <input
@@ -134,9 +131,7 @@ export default function EditProfilePage({
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-300 mb-2">
-            Bio
-          </label>
+          <label className="block text-sm font-bold text-white mb-2">Bio</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
