@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/context/app-context";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ export function PostCreator() {
   const [remainingChars, setRemainingChars] = useState(140);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -23,19 +24,24 @@ export function PostCreator() {
       setRemainingChars(140);
       if (fileInputRef.current) fileInputRef.current.value = "";
       setPreviewUrl(null);
+      autoResizeTextarea(textareaRef.current);
     }
   };
+
+  //For smooth text area size adjustment on post text or file change
+  function autoResizeTextarea(textarea: HTMLTextAreaElement | null) {
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+  }
 
   const handlePostChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     if (newValue.length <= postContent.length || newValue.length <= 140) {
       setPostContent(newValue);
       setRemainingChars(140 - newValue.length);
-
-      //Smooth text area size adjustment
-      const textarea = e.target;
-      textarea.style.height = "auto";
-      textarea.style.height = textarea.scrollHeight + "px";
+      autoResizeTextarea(e.target);
     }
   };
 
@@ -62,12 +68,17 @@ export function PostCreator() {
       } else {
         setSelectedFile(file);
         setPreviewUrl(URL.createObjectURL(file));
-        if (textareaRef.current) {
-          textareaRef.current.style.height = "auto";
-        }
+        autoResizeTextarea(textareaRef.current);
       }
     }
   };
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <form
@@ -84,7 +95,7 @@ export function PostCreator() {
               currentUser?.displayName.split(" ")[0]
             }?`}
             className="w-full bg-transparent text-base md:text-xl placeholder-gray-500 resize-none outline-none border-none overflow-hidden"
-            rows={previewUrl ? 1 : 3}
+            rows={isMobile ? 1 : previewUrl ? 1 : 3}
           />
           {previewUrl && (
             <div className="relative inline-block my-5">
@@ -105,6 +116,7 @@ export function PostCreator() {
                   if (textareaRef.current) {
                     textareaRef.current.style.height = "auto";
                   }
+                  autoResizeTextarea(textareaRef.current);
                 }}
                 className="absolute top-[-16] right-[-16] bg-red-600 text-white rounded-full py-1 px-2.5  hover:bg-red-500 border-black border-6 transition cursor-pointer"
                 aria-label="Remove preview"
@@ -115,7 +127,7 @@ export function PostCreator() {
           )}
           <div className="flex justify-between items-center">
             <span
-              className={`text-xs md:text-sm select-none ${
+              className={`text-xs md:text-sm mb-[-25] md:mb-0 select-none ${
                 remainingChars == 0 ? "text-red-500" : "text-gray-700"
               }`}
             >
