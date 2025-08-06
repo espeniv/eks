@@ -197,10 +197,10 @@ export default function ProfilePage({
               {user.bio ? (
                 <p className="text-white">{user.bio}</p>
               ) : (
-                <p className="text-gray-500">
+                <p className="text-gray-500 italic">
                   {currentUser?.id === user.id
-                    ? "(Click edit profile to set a bio)"
-                    : "(No bio has been set)"}
+                    ? "(Edit profile to set a bio)"
+                    : "(User has not set a bio yet)"}
                 </p>
               )}
 

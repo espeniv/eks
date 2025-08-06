@@ -38,7 +38,7 @@ export function Navbar() {
               stroke="white"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="1.5"
+              strokeWidth="2"
             >
               <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19H6.133Z" />
               <path d="M9.5 21v-5.5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2V21" />
@@ -73,7 +73,7 @@ export function Navbar() {
               stroke="currentColor"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="1.5"
+              strokeWidth="2"
             >
               <path d="M11.962 17.986h6.81a1.555 1.555 0 0 0 1.512-2.175c-.36-1.088-1.795-2.393-1.795-3.677c0-2.85 0-3.6-1.404-5.276a5.025 5.025 0 0 0-1.653-1.283l-.783-.38a1.089 1.089 0 0 1-.511-.73a2.023 2.023 0 0 0-2.176-1.707a2.023 2.023 0 0 0-2.12 1.707a1.089 1.089 0 0 1-.567.73l-.783.38A5.025 5.025 0 0 0 6.84 6.858c-1.403 1.676-1.403 2.426-1.403 5.276c0 1.284-1.37 2.458-1.73 3.611c-.217.697-.337 2.241 1.48 2.241z" />
               <path d="M15.225 17.986a3.198 3.198 0 0 1-3.263 3.263A3.195 3.195 0 0 1 8.7 17.986" />
@@ -111,7 +111,7 @@ export function Navbar() {
             className="w-6 h-6"
             viewBox="0 0 24 24"
           >
-            <g fill="none" stroke="currentColor" strokeWidth="1.5">
+            <g fill="none" stroke="currentColor" strokeWidth="2">
               <path
                 strokeLinejoin="round"
                 d="M4 18a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"
