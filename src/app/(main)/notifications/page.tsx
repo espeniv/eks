@@ -16,11 +16,17 @@ export default function NotificationsPage() {
     };
   }, []);
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <div className="h-screen flex flex-col">
       <div className="flex-shrink-0 bg-black border-gray-800">
-        <div className="border-b border-gray-800 p-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Notifications</h1>
+        <div
+          className={`border-b border-gray-800 ${
+            isMobile ? "p-3 py-1 justify-around" : "p-4"
+          } flex items-center`}
+        >
+          <h1 className="text-xl font-bold select-none">Notifications</h1>
         </div>
       </div>
       <div className="mt-4 flex-1 overflow-y-auto custom-scrollbar bg-black">

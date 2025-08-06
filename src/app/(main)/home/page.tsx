@@ -6,6 +6,11 @@ import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Unbounded } from "next/font/google";
+
+const unbounded = Unbounded({
+  subsets: ["latin"],
+});
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -43,11 +48,25 @@ export default function HomePage() {
     return null;
   }
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <div className="h-screen flex flex-col">
       <div className="flex-shrink-0 bg-black border-b border-gray-800">
-        <div className="border-b border-gray-800 p-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Home</h1>
+        <div
+          className={`border-b border-gray-800 ${
+            isMobile ? "p-3 py-1 justify-around" : "p-4"
+          } flex items-center`}
+        >
+          {isMobile ? (
+            <h1
+              className={`text-xl ${unbounded.className} font-bold select-none`}
+            >
+              Eks
+            </h1>
+          ) : (
+            <h1 className="text-xl font-bold">Home</h1>
+          )}
         </div>
         <PostCreator />
         <div className="border-b border-gray-800">
