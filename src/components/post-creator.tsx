@@ -3,13 +3,13 @@
 import { useRef, useState } from "react";
 import { useApp } from "@/context/app-context";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export function PostCreator() {
   const { addPost, currentUser } = useApp();
   const [postContent, setPostContent] = useState("");
   const [remainingChars, setRemainingChars] = useState(140);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [showFileError, setShowFileError] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,12 +45,26 @@ export function PostCreator() {
     if (file) {
       //Limit is 5MB on backend
       if (file.size > 5 * 1024 * 1024) {
-        setShowFileError(true);
-      }
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
+        toast.error("File is too big to upload", {
+          style: {
+            background: "#dc2626",
+            color: "black",
+            fontSize: "16px",
+            border: "0px solid black",
+            boxShadow:
+              "0 16px 64px 0 rgba(0,0,0,0.75), 0 8px 32px 0 rgba(0,0,0,0.55)",
+            textAlign: "center",
+            justifyContent: "center",
+            userSelect: "none",
+            borderRadius: "50px",
+          },
+        });
+      } else {
+        setSelectedFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
       }
     }
   };
@@ -86,7 +100,6 @@ export function PostCreator() {
                 type="button"
                 onClick={() => {
                   setSelectedFile(null);
-                  setShowFileError(false);
                   setPreviewUrl(null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
                   if (textareaRef.current) {
@@ -142,14 +155,10 @@ export function PostCreator() {
               )}
               <button
                 type="submit"
-                disabled={
-                  (!selectedFile && !postContent) ||
-                  remainingChars < 0 ||
-                  showFileError
-                }
+                disabled={(!selectedFile && !postContent) || remainingChars < 0}
                 className={`bg-orange-500 text-white px-6 py-2 rounded-full text-sm md:text-base font-bold hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
               >
-                {showFileError ? "File is too big" : "Post"}
+                Post
               </button>
             </div>
           </div>

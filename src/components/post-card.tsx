@@ -79,11 +79,11 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
 
   const handleCopyLinkClick = () => {
     copyToClipboard(`${window.location.origin}/post/${post.id}`);
-    toast(`Copied link to post`, {
+    toast.success(`Copied link to post`, {
       style: {
         background: "#ea580c",
         color: "black",
-        fontSize: "14px",
+        fontSize: "16px",
         border: "0px solid black",
         boxShadow:
           "0 16px 64px 0 rgba(0,0,0,0.75), 0 8px 32px 0 rgba(0,0,0,0.55)",
