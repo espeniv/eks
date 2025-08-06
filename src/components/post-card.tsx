@@ -227,7 +227,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   </span>
                 </span>
               </button>
-              <span className="text-gray-500 text-2xl">·</span>
+              <span className="text-gray-500 text-4xl">·</span>
               <div className="flex items-center space-x-2 text-gray-500 hover:text-orange-500 cursor-pointer">
                 <span className="text-lg">
                   <svg
@@ -251,7 +251,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
                   {post.commentCount ?? 0}
                 </span>
               </div>
-              <span className="text-gray-500 text-2xl">·</span>
+              <span className="text-gray-500 text-4xl">·</span>
               <button
                 className="flex items-center space-x-2 rounded-full transition-colors cursor-pointer"
                 onClick={(e) => {

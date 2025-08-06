@@ -120,7 +120,7 @@ export function PostCreator() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-white hover:text-orange-400 transition cursor-pointer"
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-gray-200 hover:text-orange-500 transition cursor-pointer"
                   aria-label="Upload image"
                 >
                   <svg
