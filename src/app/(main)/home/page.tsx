@@ -17,6 +17,7 @@ export default function HomePage() {
   const { fetchFollowingPosts } = useApp();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"all" | "following">("all");
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     document.title = "Home / Eks";
@@ -34,6 +35,13 @@ export default function HomePage() {
     }
   }, [user, fetchFollowingPosts]);
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (loading) {
     return (
       <div className="max-w-2xl">
@@ -47,8 +55,6 @@ export default function HomePage() {
   if (!user) {
     return null;
   }
-
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <div className="h-screen flex flex-col">

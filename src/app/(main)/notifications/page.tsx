@@ -2,10 +2,11 @@
 
 import { useApp } from "@/context/app-context";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { formatRelativeTime, truncateWithQuote } from "@/lib/utils";
 
 export default function NotificationsPage() {
+  const [isMobile, setIsMobile] = useState(false);
   const { notifications, markAllNotificationsAsRead } = useApp();
 
   //Mark notifs as read when component unmounts
@@ -16,7 +17,12 @@ export default function NotificationsPage() {
     };
   }, []);
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <div className="h-screen flex flex-col">
