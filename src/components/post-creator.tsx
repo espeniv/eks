@@ -45,7 +45,7 @@ export function PostCreator() {
     if (file) {
       //Limit is 5MB on backend
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("File is too big to upload", {
+        toast.error("File is too big", {
           style: {
             background: "#dc2626",
             color: "black",
