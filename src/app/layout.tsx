@@ -10,8 +10,7 @@ const montserrat = Montserrat({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Eks",
   icons: {
-    icon: "/icon.png",
-    shortcut: "/favicon.ico",
+    icon: "/favicon.ico",
     apple: "/apple-icon.png",
   },
 };
