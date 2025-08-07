@@ -123,9 +123,9 @@ export default function NotificationsPage() {
                       notification.sender.displayName
                     }`}
                   </span>
-                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`commented on your post: "${truncateWithQuote(
+                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`commented: "${truncateWithQuote(
                     notification.message,
-                    8
+                    12
                   )}`}</span>
                   <span className="ml-auto text-xs text-gray-600">
                     {formatRelativeTime(notification.createdAt)}
@@ -242,7 +242,7 @@ export default function NotificationsPage() {
                       notification.sender.displayName
                     }`}
                   </span>
-                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`has replied to you: "${truncateWithQuote(
+                  <span className="truncate overflow-hidden whitespace-nowrap max-w-[400px]">{`replied: "${truncateWithQuote(
                     notification.message,
                     20
                   )}`}</span>
