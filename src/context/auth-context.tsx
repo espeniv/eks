@@ -7,6 +7,7 @@ import { User, AuthError, AuthResponse } from "@supabase/supabase-js";
 interface UserMetadata {
   username: string;
   display_name: string;
+  avatar_url?: string;
 }
 
 interface AuthResult {

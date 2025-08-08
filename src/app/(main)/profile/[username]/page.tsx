@@ -135,7 +135,7 @@ export default function ProfilePage({
 
   return (
     <div className="h-screen flex flex-col max-w-2xl">
-      <div className="p-4 flex items-center">
+      <div className="p-4 mb-[-20] flex items-center">
         <Link
           href={"/home"}
           className="ml-2.5 mr-6 transition flex items-center justify-center"

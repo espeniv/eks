@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { emojis } from "@/lib/avatars";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ export default function RegisterPage() {
     displayName: "",
   });
   const [loading, setLoading] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState("👤");
   const [error, setError] = useState("");
   const { signUp } = useAuth();
   const router = useRouter();
@@ -64,6 +66,7 @@ export default function RegisterPage() {
     const { error } = await signUp(formData.email, formData.password, {
       username: formData.username,
       display_name: formData.displayName,
+      avatar_url: selectedEmoji,
     });
 
     if (error) {
@@ -87,7 +90,16 @@ export default function RegisterPage() {
           created_at: new Date().toISOString(),
         },
       ]);
+      await supabase
+        .from("profiles")
+        .update({
+          username: formData.username,
+          display_name: formData.displayName,
+          avatar_url: selectedEmoji,
+        })
+        .eq("id", user.id);
     }
+
     toast.success("User created", {
       style: {
         background: "#ea580c",
@@ -140,6 +152,35 @@ export default function RegisterPage() {
               {error}
             </div>
           )}
+
+          <div>
+            <div className="flex justify-center mb-6">
+              <div className="w-30 h-30 bg-orange-600 rounded-full border-4 border-gray-800 flex items-center justify-center">
+                <span className="text-6xl md:text-7xl select-none">
+                  {selectedEmoji}
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-8 gap-3 mr-2">
+              {emojis.map((emoji) => (
+                <button
+                  type="button"
+                  key={emoji}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedEmoji(emoji);
+                  }}
+                  className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-2xl transition-colors cursor-pointer ${
+                    selectedEmoji === emoji
+                      ? "border-orange-500 bg-orange-500/20"
+                      : "border-gray-700 hover:border-gray-500"
+                  }`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="space-y-4">
             <input
@@ -199,7 +240,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-400 rounded-md text-white font-medium disabled:opacity-50"
+            className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-400 rounded-md text-white cursor-pointer font-medium disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
