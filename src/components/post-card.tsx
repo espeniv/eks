@@ -102,6 +102,14 @@ export function PostCard({
     });
   };
 
+  const handleProfileClick = () => {
+    const feed = document.querySelector("[data-feed-scrollable]");
+    if (feed) {
+      sessionStorage.setItem("homeScroll", feed.scrollTop.toString());
+      sessionStorage.setItem("feedTab", feedTab ? feedTab : "all");
+    }
+  };
+
   return (
     <div
       className={`border-b border-gray-800 p-4 text-sm md:text-base ${
@@ -110,23 +118,37 @@ export function PostCard({
       onClick={handleCardClick}
     >
       <div className="flex space-x-3">
-        <Link href={`/profile/${post.author.username}`} className="h-[50px]">
-          <div className="w-12 h-12 bg-orange-600 hover:bg-orange-500 rounded-full flex items-center justify-center">
-            {post.author.avatar ? (
-              <span className="text-3xl">{post.author.avatar}</span>
-            ) : (
-              <span className="text-3xl">👤</span>
-            )}
-          </div>
-        </Link>
+        <div
+          onClick={(e) => {
+            e.preventDefault();
+            handleProfileClick();
+          }}
+        >
+          <Link href={`/profile/${post.author.username}`} className="h-[50px]">
+            <div className="w-12 h-12 bg-orange-600 hover:bg-orange-500 rounded-full flex items-center justify-center">
+              {post.author.avatar ? (
+                <span className="text-3xl">{post.author.avatar}</span>
+              ) : (
+                <span className="text-3xl">👤</span>
+              )}
+            </div>
+          </Link>
+        </div>
         <div className="flex-1 flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-2">
-              <Link href={`/profile/${post.author.username}`}>
-                <span className="font-bold hover:underline">
-                  {post.author.displayName}
-                </span>
-              </Link>
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleProfileClick();
+                }}
+              >
+                <Link href={`/profile/${post.author.username}`}>
+                  <span className="font-bold hover:underline">
+                    {post.author.displayName}
+                  </span>
+                </Link>
+              </div>
               <span className="text-gray-500">
                 @{post.author.username.toLowerCase()}
               </span>

@@ -135,6 +135,31 @@ export default function ProfilePage({
 
   return (
     <div className="h-screen flex flex-col max-w-2xl">
+      <div className="p-4 flex items-center">
+        <Link
+          href={"/home"}
+          className="ml-2.5 mr-6 transition flex items-center justify-center"
+          aria-label="Back to home"
+          style={{ minWidth: 0, minHeight: 0 }}
+        >
+          <svg
+            width="30"
+            height="30"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 30 30"
+            className="text-gray-500 hover:text-white w-6 h-6"
+            style={{ display: "block" }}
+          >
+            <line x1="24" y1="15" x2="7" y2="15" />
+            <polyline points="13 9 7 15 13 21" />
+          </svg>
+        </Link>
+        <h1 className="text-xl font-bold"> </h1>
+      </div>
       <div className="flex-shrink-0 bg-black border-b border-gray-800">
         <div className="pt-0 md:pt-4 p-4">
           <div className="relative">

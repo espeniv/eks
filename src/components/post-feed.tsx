@@ -37,9 +37,9 @@ export function PostFeed({
     setScrollReady(true);
   }, [filteredPosts.length]);
 
-  //Restore scroll position when navigation "back", only after posts has loaded
+  //Restore scroll position when navigation "back", only after posts has loaded, and not on profile view
   useEffect(() => {
-    if (scrollReady && feedRef.current) {
+    if (scrollReady && feedRef.current && !filterByUserId) {
       const scroll = sessionStorage.getItem("homeScroll");
       if (scroll) {
         feedRef.current.scrollTop = parseInt(scroll, 10);
