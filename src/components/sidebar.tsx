@@ -62,10 +62,13 @@ export function Sidebar() {
           className="block p-3 rounded-full hover:bg-gray-900"
         >
           <span className="flex">
-            {pathname === "/home" || pathname.startsWith("/post/") ? (
+            {pathname === "/home" ||
+            pathname.startsWith("/post/") ||
+            (pathname.startsWith("/profile/") &&
+              !pathname.startsWith(`/profile/${currentUser?.username}`)) ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 mr-4"
+                className="w-6 h-6 mr-4 text-orange-500"
                 viewBox="0 0 20 20"
               >
                 <path
@@ -91,7 +94,18 @@ export function Sidebar() {
                 </g>
               </svg>
             )}
-            Home
+            <span
+              className={
+                pathname === "/home" ||
+                pathname.startsWith("/post/") ||
+                (pathname.startsWith("/profile/") &&
+                  !pathname.startsWith(`/profile/${currentUser?.username}`))
+                  ? "text-orange-500"
+                  : ""
+              }
+            >
+              Home
+            </span>
           </span>
         </Link>
         <Link
@@ -102,7 +116,7 @@ export function Sidebar() {
             {pathname === "/notifications" ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 mr-4"
+                className="h-6 w-6 mr-4 text-orange-500"
                 viewBox="0 0 24 24"
               >
                 <path
@@ -128,7 +142,11 @@ export function Sidebar() {
                 </g>
               </svg>
             )}
-            Notifications
+            <span
+              className={pathname === "/notifications" ? "text-orange-500" : ""}
+            >
+              Notifications
+            </span>
             {unreadNotificationCount > 0 && (
               <span className="ml-[-124] mt-[-10] align-middle">
                 <span
@@ -152,7 +170,7 @@ export function Sidebar() {
             {pathname.startsWith(`/profile/${currentUser?.username}`) ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 mr-4"
+                className="w-6 h-6 mr-4 text-orange-500"
                 viewBox="0 0 24 24"
               >
                 <path
@@ -177,7 +195,15 @@ export function Sidebar() {
                 </g>
               </svg>
             )}
-            Profile
+            <span
+              className={
+                pathname.startsWith(`/profile/${currentUser?.username}`)
+                  ? "text-orange-500"
+                  : ""
+              }
+            >
+              Profile
+            </span>
           </span>
         </Link>
       </nav>
