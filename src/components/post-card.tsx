@@ -13,9 +13,15 @@ interface PostCardProps {
   post: Post;
   singlePostView?: boolean;
   onProfile?: boolean;
+  feedTab?: "all" | "following";
 }
 
-export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
+export function PostCard({
+  post,
+  singlePostView,
+  onProfile,
+  feedTab,
+}: PostCardProps) {
   const router = useRouter();
 
   const { togglePostLike, isPostLikedByUser, currentUser, deletePost } =
@@ -42,6 +48,7 @@ export function PostCard({ post, singlePostView, onProfile }: PostCardProps) {
     const feed = document.querySelector("[data-feed-scrollable]");
     if (feed) {
       sessionStorage.setItem("homeScroll", feed.scrollTop.toString());
+      sessionStorage.setItem("feedTab", feedTab ? feedTab : "all");
     }
     if (onProfile) {
       router.push(`/post/${post.id}?from=/profile/${post.author.username}`);

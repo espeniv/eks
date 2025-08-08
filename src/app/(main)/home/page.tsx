@@ -16,7 +16,13 @@ export default function HomePage() {
   const { user, loading } = useAuth();
   const { fetchFollowingPosts } = useApp();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"all" | "following">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "following">(() => {
+    if (typeof window !== "undefined") {
+      const tab = sessionStorage.getItem("feedTab");
+      return tab === "following" ? "following" : "all";
+    }
+    return "all";
+  });
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -78,7 +84,10 @@ export default function HomePage() {
         <div className="border-b border-gray-800">
           <div className="flex">
             <button
-              onClick={() => setActiveTab("all")}
+              onClick={() => {
+                setActiveTab("all");
+                sessionStorage.setItem("feedTab", "all");
+              }}
               className={`flex-1 py-2 md:py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
                 activeTab === "all"
                   ? "text-white border-orange-500"
@@ -88,7 +97,10 @@ export default function HomePage() {
               All Posts
             </button>
             <button
-              onClick={() => setActiveTab("following")}
+              onClick={() => {
+                setActiveTab("following");
+                sessionStorage.setItem("feedTab", "following");
+              }}
               className={`flex-1 py-2 md:py-4 text-center font-medium border-b-2 transition-colors cursor-pointer ${
                 activeTab === "following"
                   ? "text-white border-orange-500"

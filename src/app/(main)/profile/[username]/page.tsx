@@ -109,7 +109,7 @@ export default function ProfilePage({
     return (
       <div className="max-w-2xl">
         <div className="p-8 text-center">
-          <p className="text-gray-500">Loading profile...</p>
+          <p className="text-gray-500">{/*Loading profile...*/}</p>
         </div>
       </div>
     );
