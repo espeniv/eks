@@ -32,10 +32,12 @@ export default function MainLayout({
           </div>
         </aside>
         <main className="flex-1 w-full min-h-screen border-r border-gray-800">
-          {children}
+          <div className="flex-1 pb-12 md:pb-0">{children}</div>
+          <div className="sticky bottom-0 z-30 border-t border-gray-800 bg-black">
+            <Navbar />
+          </div>
         </main>
       </div>
-      <Navbar />
     </div>
   );
 }
