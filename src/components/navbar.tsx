@@ -11,64 +11,15 @@ export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 flex justify-around items-center py-2 z-50 md:hidden select-none">
-      <Link
-        href="/home"
-        className="flex flex-col items-center px-4 py-1 hover:text-orange-400 rounded-full"
-      >
-        {pathname === "/home" ||
-        pathname.startsWith("/post/") ||
-        (pathname.startsWith("/profile/") &&
-          !pathname.startsWith(`/profile/${currentUser?.username}`)) ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 text-orange-500"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fill="currentColor"
-              d="M11.002 2.388a1.5 1.5 0 0 0-2.005 0l-5.5 4.942A1.5 1.5 0 0 0 3 8.445V15.5A1.5 1.5 0 0 0 4.5 17h2A1.5 1.5 0 0 0 8 15.5v-4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 0 1.5 1.5h2a1.5 1.5 0 0 0 1.5-1.5V8.445a1.5 1.5 0 0 0-.497-1.115l-5.5-4.942Z"
-            />
-          </svg>
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
-            viewBox="0 0 24 24"
-          >
-            <g
-              fill="none"
-              stroke="white"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-            >
-              <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19H6.133Z" />
-              <path d="M9.5 21v-5.5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2V21" />
-            </g>
-          </svg>
-        )}
-        <span
-          className={`text-xs ${
-            pathname === "/home" ||
-            pathname.startsWith("/post/") ||
-            (pathname.startsWith("/profile/") &&
-              !pathname.startsWith(`/profile/${currentUser?.username}`))
-              ? "text-orange-500"
-              : ""
-          }`}
-        >
-          Home
-        </span>
-      </Link>
+    <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 flex justify-around items-center py-1 z-50 md:hidden select-none">
       <Link
         href="/notifications"
-        className="flex flex-col items-center px-4 py-1 hover:text-orange-400 relative rounded-full"
+        className="flex flex-col items-center px-4 py-2 hover:text-orange-400 relative rounded-full"
       >
         {pathname === "/notifications" ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-orange-500"
+            className="w-7 h-7 text-orange-500 stroke-orange-500 stroke-1"
             viewBox="0 0 24 24"
           >
             <path
@@ -79,7 +30,7 @@ export function Navbar() {
         ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
+            className="w-7 h-7"
             viewBox="0 0 24 24"
           >
             <g
@@ -100,22 +51,75 @@ export function Navbar() {
             {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
           </span>
         )}
+        {/*
         <span
           className={`text-xs ${
             pathname === "/notifications" ? "text-orange-500" : ""
           }`}
         >
           Notifications
-        </span>
+        </span> 
+        */}
+      </Link>
+      <Link
+        href="/home"
+        className="flex flex-col items-center px-4 py-2 hover:text-orange-400 rounded-full"
+      >
+        {pathname === "/home" ||
+        pathname.startsWith("/post/") ||
+        (pathname.startsWith("/profile/") &&
+          !pathname.startsWith(`/profile/${currentUser?.username}`)) ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-7 h-7 text-orange-500 stroke-orange-500 stroke-1"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill="currentColor"
+              d="M11.002 2.388a1.5 1.5 0 0 0-2.005 0l-5.5 4.942A1.5 1.5 0 0 0 3 8.445V15.5A1.5 1.5 0 0 0 4.5 17h2A1.5 1.5 0 0 0 8 15.5v-4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 0 1.5 1.5h2a1.5 1.5 0 0 0 1.5-1.5V8.445a1.5 1.5 0 0 0-.497-1.115l-5.5-4.942Z"
+            />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-7 h-7"
+            viewBox="0 0 24 24"
+          >
+            <g
+              fill="none"
+              stroke="white"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            >
+              <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19H6.133Z" />
+              <path d="M9.5 21v-5.5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2V21" />
+            </g>
+          </svg>
+        )}
+        {/*
+        <span
+          className={`text-xs ${
+            pathname === "/home" ||
+            pathname.startsWith("/post/") ||
+            (pathname.startsWith("/profile/") &&
+              !pathname.startsWith(`/profile/${currentUser?.username}`))
+              ? "text-orange-500"
+              : ""
+          }`}
+        >
+          Home
+        </span> 
+        */}
       </Link>
       <Link
         href={`/profile/${currentUser?.username}`}
-        className="flex flex-col items-center px-4 py-1 hover:text-orange-400 rounded-full"
+        className="flex flex-col items-center px-4 py-2 hover:text-orange-400 rounded-full"
       >
         {pathname.startsWith(`/profile/${currentUser?.username}`) ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 text-orange-500"
+            className="w-7 h-7 text-orange-500 stroke-orange-500 stroke-1"
             viewBox="0 0 24 24"
           >
             <path
@@ -128,7 +132,7 @@ export function Navbar() {
         ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
+            className="w-7 h-7"
             viewBox="0 0 24 24"
           >
             <g fill="none" stroke="currentColor" strokeWidth="2">
@@ -140,6 +144,7 @@ export function Navbar() {
             </g>
           </svg>
         )}
+        {/* 
         <span
           className={`text-xs ${
             pathname.startsWith(`/profile/${currentUser?.username}`)
@@ -149,6 +154,7 @@ export function Navbar() {
         >
           Profile
         </span>
+        */}
       </Link>
     </nav>
   );
