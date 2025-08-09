@@ -148,7 +148,7 @@ export function Sidebar() {
               Notifications
             </span>
             {unreadNotificationCount > 0 && (
-              <span className="ml-[-124] mt-[-10] align-middle">
+              <span className="ml-[-130] mt-[-10] align-middle">
                 <span
                   className="inline-flex items-center justify-center bg-orange-500 text-white text-[10px] border-black group-hover:border-gray-900 border-4 font-bold rounded-full w-5 h-5 mb-0.25"
                   style={{ minWidth: 8 }}

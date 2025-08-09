@@ -46,7 +46,7 @@ export function Navbar() {
           </svg>
         )}
         {unreadNotificationCount > 0 && (
-          <span className="absolute top-[-2] right-[32px] inline-flex items-center justify-center bg-orange-500 text-white text-[10px] border-black group-hover:border-gray-900 border-4 font-regular rounded-full w-5 h-5 mb-0.25">
+          <span className="absolute top-1 right-[13px] inline-flex items-center justify-center bg-orange-500 text-white text-[11px]  font-regular rounded-full w-4 h-4 mb-0.25">
             {" "}
             {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
           </span>
