@@ -256,8 +256,8 @@ export default function PostPage({
   }
 
   return (
-    <div className="h-screen flex flex-col max-w-2xl">
-      <div className=" p-4 flex items-center">
+    <div className="max-w-2xl mx-auto flex flex-col min-h-screen">
+      <div className="p-4 flex items-center">
         <Link
           href={backHref}
           className="ml-2.5 mr-6 transition flex items-center justify-center"
@@ -282,25 +282,22 @@ export default function PostPage({
         </Link>
         <h1 className="text-xl font-bold">Post</h1>
       </div>
-      <div className="flex-shrink-0 bg-black">
+      <div className="bg-black">
         <PostCard post={post} singlePostView={true} />
         <div className="border-b border-gray-800 p-4">
           <CommentField post={post} />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="p-2 pt-0">
-          {renderComments(
-            comments.filter((c) => !c.parentCommentId),
-            comments
-          )}
-
-          {comments.length === 0 && (
-            <div className="text-center text-gray-500 py-8">
-              No comments yet...
-            </div>
-          )}
-        </div>
+      <div className="p-2 pt-0">
+        {renderComments(
+          comments.filter((c) => !c.parentCommentId),
+          comments
+        )}
+        {comments.length === 0 && (
+          <div className="text-center text-gray-500 py-8">
+            No comments yet...
+          </div>
+        )}
       </div>
     </div>
   );

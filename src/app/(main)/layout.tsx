@@ -25,11 +25,13 @@ export default function MainLayout({
   }
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="max-w-4xl mx-auto flex">
-        <div className="hidden top-0 md:block fixed md:static h-screen z-10">
-          <Sidebar />
-        </div>
-        <main className="flex-1 w-full border-r border-gray-800 h-screen">
+      <div className="max-w-4xl mx-auto flex items-stretch">
+        <aside className="hidden md:block w-64 shrink-0 border-r border-gray-800">
+          <div className="sticky top-0 h-screen">
+            <Sidebar />
+          </div>
+        </aside>
+        <main className="flex-1 w-full min-h-screen border-r border-gray-800">
           {children}
         </main>
       </div>
