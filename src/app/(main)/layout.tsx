@@ -31,9 +31,11 @@ export default function MainLayout({
             <Sidebar />
           </div>
         </aside>
-        <main className="flex-1 w-full min-h-screen border-r border-gray-800">
-          <div className="flex-1 pb-12 md:pb-0">{children}</div>
-          <div className="sticky bottom-0 z-30 border-t border-gray-800 bg-black">
+        <main className="flex-1 w-full border-r border-gray-800">
+          <div className="h-[100dvh] min-h-0 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain overflow-anchor-none scrollbar-stable pb-16 md:pb-0">
+              {children}
+            </div>
             <Navbar />
           </div>
         </main>
