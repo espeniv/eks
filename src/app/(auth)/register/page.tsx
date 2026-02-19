@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { emojis } from "@/lib/avatars";
 
@@ -46,8 +45,8 @@ export default function RegisterPage() {
       setError("Passwords do not match");
       return false;
     }
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long");
       return false;
     }
     return true;
@@ -73,31 +72,6 @@ export default function RegisterPage() {
       setError(error.message);
       setLoading(false);
       return;
-    }
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      await supabase.from("notifications").insert([
-        {
-          recipient_id: user.id,
-          sender_id: user.id,
-          type: "welcome",
-          message: "Thanks for checking out my project! 🎉",
-          is_read: false,
-          created_at: new Date().toISOString(),
-        },
-      ]);
-      await supabase
-        .from("profiles")
-        .update({
-          username: formData.username,
-          display_name: formData.displayName,
-          avatar_url: selectedEmoji,
-        })
-        .eq("id", user.id);
     }
 
     toast.success("User created", {

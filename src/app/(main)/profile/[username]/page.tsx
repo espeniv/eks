@@ -5,7 +5,8 @@ import { User } from "@/lib/types";
 import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { use, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { databases, DATABASE_ID, COLLECTION_IDS } from "@/lib/appwrite";
+import { Query } from "appwrite";
 import Link from "next/link";
 
 export default function ProfilePage({
@@ -31,23 +32,24 @@ export default function ProfilePage({
       try {
         setLoading(true);
 
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("username", username)
-          .single();
+        const result = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTION_IDS.profiles,
+          [Query.equal("username", username), Query.limit(1)],
+        );
 
-        if (error) {
+        if (result.documents.length === 0) {
           setUser(null);
         } else {
+          const data = result.documents[0];
           const userData = {
-            id: data.id,
-            username: data.username,
-            displayName: data.display_name,
-            avatar: data.avatar_url,
-            bio: data.bio || "",
-            followers: data.followers_count || 0,
-            following: data.following_count || 0,
+            id: data.$id,
+            username: data.username as string,
+            displayName: data.display_name as string,
+            avatar: (data.avatar_url as string) || null,
+            bio: (data.bio as string) || "",
+            followers: (data.followers_count as number) || 0,
+            following: (data.following_count as number) || 0,
           };
 
           setUser(userData);
@@ -63,19 +65,21 @@ export default function ProfilePage({
     const fetchFollowCounts = async (userId: string) => {
       try {
         //Get followers
-        const { count: followers } = await supabase
-          .from("follows")
-          .select("*", { count: "exact", head: true })
-          .eq("following_id", userId);
+        const followersResult = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTION_IDS.follows,
+          [Query.equal("following_id", userId), Query.limit(1)],
+        );
 
         //Get following count
-        const { count: following } = await supabase
-          .from("follows")
-          .select("*", { count: "exact", head: true })
-          .eq("follower_id", userId);
+        const followingResult = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTION_IDS.follows,
+          [Query.equal("follower_id", userId), Query.limit(1)],
+        );
 
-        setFollowerCount(followers || 0);
-        setFollowingCount(following || 0);
+        setFollowerCount(followersResult.total || 0);
+        setFollowingCount(followingResult.total || 0);
       } catch (error) {
         console.error("Error fetching follow counts:", error);
       }
@@ -90,12 +94,13 @@ export default function ProfilePage({
     if (user) {
       const fetchFollowCounts = async () => {
         try {
-          const { count: followers } = await supabase
-            .from("follows")
-            .select("*", { count: "exact", head: true })
-            .eq("following_id", user.id);
+          const followersResult = await databases.listDocuments(
+            DATABASE_ID,
+            COLLECTION_IDS.follows,
+            [Query.equal("following_id", user.id), Query.limit(1)],
+          );
 
-          setFollowerCount(followers || 0);
+          setFollowerCount(followersResult.total || 0);
         } catch (error) {
           console.error("Error fetching follow counts:", error);
         }
