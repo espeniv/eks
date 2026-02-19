@@ -61,6 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await account.create(ID.unique(), email, password, userData.display_name);
 
+      // Delete any existing session first
+      try {
+        await account.deleteSession("current");
+      } catch {
+        // No active session — that's fine
+      }
       await account.createEmailPasswordSession(email, password);
 
       await account.updatePrefs({
@@ -116,6 +122,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
   ): Promise<AuthResult> => {
     try {
+      // Delete any existing session first
+      try {
+        await account.deleteSession("current");
+      } catch {
+        // No active session — that's fine
+      }
       const session = await account.createEmailPasswordSession(email, password);
       const currentUser = await account.get();
       setUser(currentUser);
