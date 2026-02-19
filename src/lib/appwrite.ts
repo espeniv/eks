@@ -32,8 +32,10 @@ export const storage = new Storage(client);
 
 export { client };
 
-export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
-export const BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID!;
+export const DATABASE_ID =
+  process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "eks_db";
+export const BUCKET_ID =
+  process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || "post_images";
 
 export const COLLECTION_IDS = {
   profiles: "profiles",
