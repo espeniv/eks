@@ -11,63 +11,8 @@ import {
 } from "react";
 import { Post, User, Comment } from "@/lib/types";
 import { useAuth } from "./auth-context";
-import {
-  databases,
-  storage,
-  DATABASE_ID,
-  COLLECTION_IDS,
-  BUCKET_ID,
-} from "@/lib/appwrite";
-import { ID, Query } from "appwrite";
+import { supabase } from "@/lib/supabase";
 import { extractMentions } from "@/lib/utils";
-
-// Typed document interfaces for Appwrite collections
-interface ProfileDoc {
-  $id: string;
-  username: string;
-  display_name: string;
-  avatar_url: string | null;
-  bio: string | null;
-  followers_count: number;
-  following_count: number;
-  [key: string]: unknown;
-}
-
-interface PostDoc {
-  $id: string;
-  content: string;
-  author_id: string;
-  created_at: string;
-  likes_count: number;
-  comment_count: number;
-  image_url: string | null;
-  [key: string]: unknown;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface CommentDoc {
-  $id: string;
-  content: string;
-  post_id: string;
-  author_id: string;
-  created_at: string;
-  parent_comment_id: string | null;
-  [key: string]: unknown;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface NotificationDoc {
-  $id: string;
-  recipient_id: string;
-  sender_id: string;
-  post_id: string | null;
-  comment_id: string | null;
-  type: string;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-  [key: string]: unknown;
-}
 
 interface AppContextType {
   currentUser: User | null;
@@ -75,7 +20,7 @@ interface AppContextType {
   fetchPosts: () => void;
   addPost: (
     content: string,
-    file: File | null,
+    file: File | null
   ) => Promise<{ success: boolean; post?: Post; error?: Error }>;
   getPostById: (id: string) => Post | null;
   togglePostLike: (postId: string) => Promise<void>;
@@ -85,7 +30,7 @@ interface AppContextType {
   addComment: (
     postId: string,
     content: string,
-    parentCommentId?: string | null,
+    parentCommentId?: string | null
   ) => Promise<{ success: boolean; comment?: Comment; error?: Error }>;
   getCommentsByPostId: (postId: string) => Comment[];
   followingPosts: Post[];
@@ -101,11 +46,33 @@ interface AppContextType {
   markAllNotificationsAsRead: () => Promise<void>;
   deletePost: (
     postId: string,
-    imageUrl?: string | null,
+    imageUrl?: string | null
   ) => Promise<{ success: boolean; error?: Error }>;
   deleteComment: (
-    commentId: string,
+    commentId: string
   ) => Promise<{ success: boolean; error?: Error }>;
+}
+
+interface SupabaseProfile {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  followers_count: number | null;
+  following_count: number | null;
+}
+
+interface SupabasePost {
+  id: string;
+  content: string;
+  created_at: string;
+  likes_count: number | null;
+  comment_count: number | null;
+  is_liked_by_user: boolean;
+  author_id: string;
+  profiles: SupabaseProfile;
+  image_url: string | null;
 }
 
 interface Notification {
@@ -123,42 +90,6 @@ interface Notification {
   postId?: string;
 }
 
-// Helper to convert a profile document to a User
-function profileDocToUser(doc: ProfileDoc): User {
-  return {
-    id: doc.$id,
-    username: doc.username,
-    displayName: doc.display_name,
-    avatar: doc.avatar_url || null,
-    bio: doc.bio || "",
-    followers: doc.followers_count || 0,
-    following: doc.following_count || 0,
-  };
-}
-
-// Helper to batch-fetch profiles by IDs
-async function fetchProfilesByIds(ids: string[]): Promise<Map<string, User>> {
-  const profilesMap = new Map<string, User>();
-  if (ids.length === 0) return profilesMap;
-
-  const uniqueIds = [...new Set(ids)];
-  const results = await Promise.all(
-    uniqueIds.map((id) =>
-      databases
-        .getDocument(DATABASE_ID, COLLECTION_IDS.profiles, id)
-        .catch(() => null),
-    ),
-  );
-
-  results.forEach((doc) => {
-    if (doc) {
-      profilesMap.set(doc.$id, profileDocToUser(doc as unknown as ProfileDoc));
-    }
-  });
-
-  return profilesMap;
-}
-
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -168,7 +99,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Comment[]>([]);
   const [following, setFollowing] = useState<Set<string>>(new Set());
-  const [profileData, setProfileData] = useState<ProfileDoc | null>(null);
+  const [profileData, setProfileData] = useState<SupabaseProfile | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
@@ -180,15 +111,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const profile = await databases.getDocument(
-          DATABASE_ID,
-          COLLECTION_IDS.profiles,
-          user.$id,
-        );
-        setProfileData(profile as unknown as ProfileDoc);
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select(
+            `
+            id,
+            username,
+            display_name,
+            avatar_url,
+            bio,
+            followers_count,
+            following_count
+          `
+          )
+          .eq("id", user.id)
+          .single();
+
+        if (!error && profile) {
+          setProfileData(profile);
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
-        setProfileData(null);
       }
     };
 
@@ -198,19 +141,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   //useMemo instead of setCurrentUser
   const currentUser = useMemo(() => {
     if (!user || !profileData) return null;
-    return profileDocToUser(profileData);
+    return {
+      id: profileData.id,
+      username: profileData.username,
+      displayName: profileData.display_name,
+      avatar: profileData.avatar_url,
+      bio: profileData.bio || "",
+      followers: profileData.followers_count || 0,
+      following: profileData.following_count || 0,
+    };
   }, [user, profileData]);
 
   const refreshCurrentUser = async () => {
     if (!user) return;
 
     try {
-      const profile = await databases.getDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.profiles,
-        user.$id,
-      );
-      setProfileData(profile as unknown as ProfileDoc);
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select(
+          `
+          id,
+          username,
+          display_name,
+          avatar_url,
+          bio,
+          followers_count,
+          following_count
+        `
+        )
+        .eq("id", user.id)
+        .single();
+
+      if (!error && profile) {
+        setProfileData(profile);
+      }
     } catch (error) {
       console.error("Error refreshing profile:", error);
     }
@@ -223,15 +187,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!currentUser) return;
 
       try {
-        const result = await databases.listDocuments(
-          DATABASE_ID,
-          COLLECTION_IDS.follows,
-          [Query.equal("follower_id", currentUser.id), Query.limit(500)],
-        );
+        const { data } = await supabase
+          .from("follows")
+          .select("following_id")
+          .eq("follower_id", currentUser.id);
 
-        const followingIds = new Set(
-          result.documents.map((doc) => doc.following_id as string),
-        );
+        const followingIds = new Set(data?.map((f) => f.following_id) || []);
         setFollowing(followingIds);
       } catch (error) {
         console.error("Error loading following:", error);
@@ -243,56 +204,74 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const fetchPosts = async () => {
     try {
-      const postsResult = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.posts,
-        [Query.orderDesc("created_at"), Query.limit(100)],
-      );
+      const { data, error } = await supabase
+        .from("posts_with_likes_and_comments")
+        .select(
+          `
+        id,
+        content,
+        created_at,
+        likes_count,
+        is_liked_by_user,
+        author_id,
+        comment_count,
+        image_url,
+        profiles!posts_author_id_fkey (
+          id,
+          username,
+          display_name,
+          avatar_url,
+          bio,
+          followers_count,
+          following_count
+        )
+      `
+        )
+        .order("created_at", { ascending: false })
+        .limit(100);
 
-      if (postsResult.documents.length === 0) {
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
         console.log("No posts found");
         setPosts([]);
         return;
       }
 
-      // Batch-fetch all author profiles
-      const authorIds = [
-        ...new Set(postsResult.documents.map((doc) => doc.author_id as string)),
-      ];
-      const profilesMap = await fetchProfilesByIds(authorIds);
+      const typedData = data as unknown as SupabasePost[];
 
-      const typedPosts = postsResult.documents as unknown as PostDoc[];
-
-      const formattedPosts: Post[] = typedPosts.map((post) => ({
-        id: post.$id,
+      const formattedPosts: Post[] = typedData.map((post) => ({
+        id: post.id,
         content: post.content,
-        author: profilesMap.get(post.author_id) || {
-          id: post.author_id,
-          username: "Unknown",
-          displayName: "Unknown User",
-          avatar: null,
-          bio: "",
-          followers: 0,
-          following: 0,
+        author: {
+          id: post.profiles.id,
+          username: post.profiles.username,
+          displayName: post.profiles.display_name,
+          avatar: post.profiles.avatar_url,
+          bio: post.profiles.bio || "",
+          followers: post.profiles.followers_count || 0,
+          following: post.profiles.following_count || 0,
         },
         likes: post.likes_count || 0,
         createdAt: post.created_at,
         commentCount: post.comment_count || 0,
-        imageUrl: post.image_url || null,
+        imageUrl: post.image_url,
       }));
-
       setPosts(formattedPosts);
 
       //To get a set of currentusers liked posts for correct like tracking on frontend
       if (currentUser) {
-        const likesResult = await databases.listDocuments(
-          DATABASE_ID,
-          COLLECTION_IDS.likes,
-          [Query.equal("user_id", currentUser.id), Query.limit(500)],
-        );
+        const postIds = formattedPosts.map((post) => post.id);
+        const { data: userLikesData } = await supabase
+          .from("likes")
+          .select("post_id")
+          .eq("user_id", currentUser.id)
+          .in("post_id", postIds);
 
         const likedPostIds = new Set(
-          likesResult.documents.map((doc) => doc.post_id as string),
+          userLikesData?.map((like) => like.post_id) || []
         );
         setUserLikes(likedPostIds);
       } else {
@@ -309,73 +288,77 @@ export function AppProvider({ children }: { children: ReactNode }) {
       prevPosts.map((post) =>
         post.author.id === updatedUser.id
           ? { ...post, author: updatedUser }
-          : post,
-      ),
+          : post
+      )
     );
 
     setFollowingPosts((prevPosts) =>
       prevPosts.map((post) =>
         post.author.id === updatedUser.id
           ? { ...post, author: updatedUser }
-          : post,
-      ),
+          : post
+      )
     );
   };
 
   const addPost = async (
     content: string,
-    file?: File | null,
+    file?: File | null
   ): Promise<{ success: boolean; post?: Post; error?: Error }> => {
     if (!currentUser) {
       return { success: false, error: new Error("No user logged in") };
     }
     try {
-      const now = new Date().toISOString();
-
-      const rawPostDoc = await databases.createDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.posts,
-        ID.unique(),
-        {
+      const { data, error } = await supabase
+        .from("posts")
+        .insert({
           content: content.trim(),
           author_id: currentUser.id,
-          created_at: now,
-          likes_count: 0,
-          comment_count: 0,
-        },
-      );
-      const postDoc = rawPostDoc as unknown as PostDoc;
+          created_at: new Date().toISOString(),
+        })
+        .select(
+          `
+          id,
+          content,
+          created_at,
+          likes_count,
+          author_id
+        `
+        )
+        .single();
+
+      if (error) {
+        console.error("Error creating post:", error);
+        throw error;
+      }
 
       let imageUrl: string | null = null;
 
       if (file) {
-        try {
-          const uploadedFile = await storage.createFile(
-            BUCKET_ID,
-            ID.unique(),
-            file,
-          );
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("post-images")
+          .upload(`public/${Date.now()}_${file.name}`, file);
 
-          imageUrl = storage
-            .getFileView(BUCKET_ID, uploadedFile.$id)
-            .toString();
-
-          // Update the post with the image URL
-          await databases.updateDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.posts,
-            postDoc.$id,
-            { image_url: imageUrl },
-          );
-        } catch (uploadError) {
+        if (uploadError) {
           console.error("Image upload failed:", uploadError);
-          return { success: false, error: uploadError as Error };
+          //Delete the post here if image fails to upload?
+          return { success: false, error: uploadError };
         }
+
+        imageUrl = supabase.storage
+          .from("post-images")
+          .getPublicUrl(uploadData.path).data.publicUrl;
+
+        // Update the post with the image URL
+        await supabase
+          .from("posts")
+          .update({ image_url: imageUrl })
+          .eq("id", data.id);
       }
 
       const newPost: Post = {
-        id: postDoc.$id,
-        content: postDoc.content,
+        id: data.id,
+        content: data.content,
         author: {
           id: currentUser.id,
           username: currentUser.username,
@@ -385,8 +368,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           followers: currentUser.followers,
           following: currentUser.following,
         },
-        likes: 0,
-        createdAt: now,
+        likes: data.likes_count || 0,
+        createdAt: data.created_at,
         imageUrl: imageUrl || null,
       };
 
@@ -396,32 +379,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const mentionedUsernames = extractMentions(newPost.content);
 
       for (const username of mentionedUsernames) {
-        try {
-          const profileResult = await databases.listDocuments(
-            DATABASE_ID,
-            COLLECTION_IDS.profiles,
-            [Query.equal("username", username.toLowerCase()), Query.limit(1)],
-          );
+        const { data: user } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("username", username.toLowerCase())
+          .single();
 
-          const mentionedUser = profileResult.documents[0];
-          if (mentionedUser && mentionedUser.$id !== currentUser.id) {
-            await databases.createDocument(
-              DATABASE_ID,
-              COLLECTION_IDS.notifications,
-              ID.unique(),
-              {
-                recipient_id: mentionedUser.$id,
-                sender_id: currentUser.id,
-                post_id: newPost.id,
-                type: "mention",
-                message: "mentioned you in a post.",
-                is_read: false,
-                created_at: new Date().toISOString(),
-              },
-            );
-          }
-        } catch (err) {
-          console.error("Error creating mention notification:", err);
+        if (user && user.id !== currentUser.id) {
+          await supabase.from("notifications").insert([
+            {
+              recipient_id: user.id,
+              sender_id: currentUser.id,
+              post_id: newPost.id,
+              type: "mention",
+              message: `mentioned you in a post.`,
+              is_read: false,
+              created_at: new Date().toISOString(),
+            },
+          ]);
         }
       }
 
@@ -445,19 +420,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const togglePostLike = async (postId: string) => {
     if (currentUser) {
       try {
-        // Check if like exists
-        const likesResult = await databases.listDocuments(
-          DATABASE_ID,
-          COLLECTION_IDS.likes,
-          [
-            Query.equal("post_id", postId),
-            Query.equal("user_id", currentUser.id),
-            Query.limit(1),
-          ],
-        );
+        const { data: existingLike } = await supabase
+          .from("likes")
+          .select("id")
+          .eq("post_id", postId)
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
 
-        const existingLike =
-          likesResult.documents.length > 0 ? likesResult.documents[0] : null;
         const isCurrentlyLiked = !!existingLike;
 
         const post = getPostById(postId);
@@ -483,75 +452,54 @@ export function AppProvider({ children }: { children: ReactNode }) {
               };
             }
             return post;
-          }),
+          })
         );
 
         if (existingLike) {
-          await databases.deleteDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.likes,
-            existingLike.$id,
-          );
+          await supabase
+            .from("likes")
+            .delete()
+            .eq("post_id", postId)
+            .eq("user_id", currentUser.id);
 
-          const currentPost = await databases.getDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.posts,
-            postId,
-          );
+          const { data: currentPost } = await supabase
+            .from("posts")
+            .select("likes_count")
+            .eq("id", postId)
+            .single();
 
-          await databases.updateDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.posts,
-            postId,
-            {
-              likes_count: Math.max(
-                ((currentPost.likes_count as number) || 1) - 1,
-                0,
-              ),
-            },
-          );
+          await supabase
+            .from("posts")
+            .update({
+              likes_count: Math.max((currentPost?.likes_count || 1) - 1, 0),
+            })
+            .eq("id", postId);
         } else {
-          await databases.createDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.likes,
-            ID.unique(),
-            {
-              post_id: postId,
-              user_id: currentUser.id,
-            },
-          );
+          await supabase.from("likes").insert({
+            post_id: postId,
+            user_id: currentUser.id,
+          });
+          const { data: currentPost } = await supabase
+            .from("posts")
+            .select("likes_count")
+            .eq("id", postId)
+            .single();
 
-          const currentPost = await databases.getDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.posts,
-            postId,
-          );
-
-          await databases.updateDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.posts,
-            postId,
-            {
-              likes_count: ((currentPost.likes_count as number) || 0) + 1,
-            },
-          );
+          await supabase
+            .from("posts")
+            .update({ likes_count: (currentPost?.likes_count || 0) + 1 })
+            .eq("id", postId);
 
           //Notification creation on like
           if (postAuthorId && postAuthorId !== currentUser.id) {
-            await databases.createDocument(
-              DATABASE_ID,
-              COLLECTION_IDS.notifications,
-              ID.unique(),
-              {
-                recipient_id: postAuthorId,
-                sender_id: currentUser.id,
-                post_id: postId,
-                type: "like",
-                message: "liked your post",
-                is_read: false,
-                created_at: new Date().toISOString(),
-              },
-            );
+            await supabase.from("notifications").insert({
+              recipient_id: postAuthorId,
+              sender_id: currentUser.id,
+              post_id: postId,
+              type: "like",
+              message: "liked your post",
+              is_read: false,
+            });
           }
         }
       } catch (error) {
@@ -565,15 +513,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   //Refetch likes again when user or posts changes
   useEffect(() => {
     if (currentUser && posts.length > 0) {
-      databases
-        .listDocuments(DATABASE_ID, COLLECTION_IDS.likes, [
-          Query.equal("user_id", currentUser.id),
-          Query.limit(500),
-        ])
-        .then((result) => {
-          const likedPostIds = new Set(
-            result.documents.map((doc) => doc.post_id as string),
-          );
+      const postIds = posts.map((post) => post.id);
+      supabase
+        .from("likes")
+        .select("post_id")
+        .eq("user_id", currentUser.id)
+        .in("post_id", postIds)
+        .then(({ data }) => {
+          const likedPostIds = new Set(data?.map((like) => like.post_id) || []);
           setUserLikes(likedPostIds);
         });
     } else {
@@ -584,48 +531,78 @@ export function AppProvider({ children }: { children: ReactNode }) {
   //-----Comment functionality-----
   const fetchComments = async (postId: string) => {
     try {
-      const commentsResult = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.comments,
-        [
-          Query.equal("post_id", postId),
-          Query.orderAsc("created_at"),
-          Query.limit(500),
-        ],
-      );
+      const { data, error } = await supabase
+        .from("comments")
+        .select(
+          `
+      id,
+      content,
+      created_at,
+      post_id,
+      author_id,
+      parent_comment_id
+    `
+        )
+        .eq("post_id", postId)
+        .order("created_at", { ascending: true });
 
-      if (commentsResult.documents.length === 0) {
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
         setComments((prev) =>
-          prev.filter((comment) => comment.postId !== postId),
+          prev.filter((comment) => comment.postId !== postId)
         );
         return;
       }
 
-      const authorIds = [
-        ...new Set(
-          commentsResult.documents.map((doc) => doc.author_id as string),
-        ),
-      ];
-      const authorsMap = await fetchProfilesByIds(authorIds);
+      const authorIds = [...new Set(data.map((comment) => comment.author_id))];
 
-      const formattedComments: Comment[] = commentsResult.documents.map(
-        (doc) => ({
-          id: doc.$id,
-          content: doc.content as string,
-          postId: doc.post_id as string,
-          author: authorsMap.get(doc.author_id as string) || {
-            id: doc.author_id as string,
-            username: "Unknown",
-            displayName: "Unknown User",
-            avatar: null,
-            bio: "",
-            followers: 0,
-            following: 0,
-          },
-          createdAt: doc.created_at as string,
-          parentCommentId: (doc.parent_comment_id as string) || null,
-        }),
-      );
+      const { data: authorsData, error: authorsError } = await supabase
+        .from("profiles")
+        .select(
+          `
+      id,
+      username,
+      display_name,
+      avatar_url,
+      bio,
+      followers_count,
+      following_count
+    `
+        )
+        .in("id", authorIds);
+
+      if (authorsError) throw authorsError;
+
+      const authorsMap = new Map();
+      authorsData?.forEach((author) => {
+        authorsMap.set(author.id, {
+          id: author.id,
+          username: author.username,
+          displayName: author.display_name,
+          avatar: author.avatar_url,
+          bio: author.bio || "",
+          followers: author.followers_count || 0,
+          following: author.following_count || 0,
+        });
+      });
+
+      const formattedComments: Comment[] = data.map((comment) => ({
+        id: comment.id,
+        content: comment.content,
+        postId: comment.post_id,
+        author: authorsMap.get(comment.author_id) || {
+          id: comment.author_id,
+          username: "Unknown",
+          displayName: "Unknown User",
+          avatar: null,
+          bio: "",
+          followers: 0,
+          following: 0,
+        },
+        createdAt: comment.created_at,
+        parentCommentId: comment.parent_comment_id,
+      }));
 
       setComments((prev) => [
         ...prev.filter((comment) => comment.postId !== postId),
@@ -639,32 +616,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addComment = async (
     postId: string,
     content: string,
-    parentCommentId?: string | null,
+    parentCommentId?: string | null
   ): Promise<{ success: boolean; comment?: Comment; error?: Error }> => {
     if (!currentUser) {
       return { success: false, error: new Error("No user logged in") };
     }
 
     try {
-      const now = new Date().toISOString();
-
-      const commentDoc = await databases.createDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.comments,
-        ID.unique(),
-        {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert({
           content: content.trim(),
           post_id: postId,
           author_id: currentUser.id,
-          created_at: now,
-          parent_comment_id: parentCommentId ?? undefined,
-        },
-      );
+          created_at: new Date().toISOString(),
+          parent_comment_id: parentCommentId ?? null,
+        })
+        .select(
+          `
+          id,
+          content,
+          created_at,
+          post_id,
+          author_id,
+          parent_comment_id
+        `
+        )
+        .single();
+
+      if (error) {
+        console.error("Error creating comment:", error);
+        throw error;
+      }
 
       const newComment: Comment = {
-        id: commentDoc.$id,
-        content: commentDoc.content as string,
-        postId: commentDoc.post_id as string,
+        id: data.id,
+        content: data.content,
+        postId: data.post_id,
         author: {
           id: currentUser.id,
           username: currentUser.username,
@@ -674,8 +662,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           followers: currentUser.followers,
           following: currentUser.following,
         },
-        createdAt: now,
-        parentCommentId: (commentDoc.parent_comment_id as string) || null,
+        createdAt: data.created_at,
+        parentCommentId: data.parent_comment_id,
       };
 
       setComments((prev) => [...prev, newComment]);
@@ -684,33 +672,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const mentionedUsernames = extractMentions(newComment.content);
 
       for (const username of mentionedUsernames) {
-        try {
-          const profileResult = await databases.listDocuments(
-            DATABASE_ID,
-            COLLECTION_IDS.profiles,
-            [Query.equal("username", username.toLowerCase()), Query.limit(1)],
-          );
+        const { data: user } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("username", username.toLowerCase())
+          .single();
 
-          const mentionedUser = profileResult.documents[0];
-          if (mentionedUser && mentionedUser.$id !== currentUser.id) {
-            await databases.createDocument(
-              DATABASE_ID,
-              COLLECTION_IDS.notifications,
-              ID.unique(),
-              {
-                recipient_id: mentionedUser.$id,
-                sender_id: currentUser.id,
-                post_id: newComment.postId,
-                comment_id: newComment.id,
-                type: "mention",
-                message: "mentioned you in a comment.",
-                is_read: false,
-                created_at: new Date().toISOString(),
-              },
-            );
-          }
-        } catch (err) {
-          console.error("Error creating mention notification:", err);
+        if (user && user.id !== currentUser.id) {
+          await supabase.from("notifications").insert([
+            {
+              recipient_id: user.id,
+              sender_id: currentUser.id,
+              post_id: newComment.postId,
+              comment_id: newComment.id,
+              type: "mention",
+              message: `mentioned you in a comment.`,
+              is_read: false,
+              created_at: new Date().toISOString(),
+            },
+          ]);
         }
       }
 
@@ -719,34 +699,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       let parentCommentAuthorId: string | null = null;
       if (newComment.parentCommentId) {
-        try {
-          const parentComment = await databases.getDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.comments,
-            newComment.parentCommentId,
-          );
+        const { data: parentComment, error: parentError } = await supabase
+          .from("comments")
+          .select("author_id")
+          .eq("id", newComment.parentCommentId)
+          .single();
 
-          parentCommentAuthorId = parentComment.author_id as string;
+        if (!parentError && parentComment) {
+          parentCommentAuthorId = parentComment.author_id;
           //Only notify reply if not replying to self
-          if (parentCommentAuthorId !== currentUser.id) {
-            await databases.createDocument(
-              DATABASE_ID,
-              COLLECTION_IDS.notifications,
-              ID.unique(),
-              {
-                recipient_id: parentCommentAuthorId,
-                sender_id: currentUser.id,
-                post_id: postId,
-                comment_id: newComment.id,
-                type: "reply",
-                message: newComment.content,
-                is_read: false,
-                created_at: new Date().toISOString(),
-              },
-            );
+          if (parentComment.author_id !== currentUser.id) {
+            await supabase.from("notifications").insert({
+              recipient_id: parentComment.author_id,
+              sender_id: currentUser.id,
+              post_id: postId,
+              comment_id: newComment.id,
+              type: "reply",
+              message: newComment.content,
+              is_read: false,
+            });
           }
-        } catch (err) {
-          console.error("Error creating reply notification:", err);
         }
       }
 
@@ -756,21 +728,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         postAuthorId !== currentUser.id &&
         postAuthorId !== parentCommentAuthorId
       ) {
-        await databases.createDocument(
-          DATABASE_ID,
-          COLLECTION_IDS.notifications,
-          ID.unique(),
-          {
-            recipient_id: postAuthorId,
-            sender_id: currentUser.id,
-            post_id: postId,
-            comment_id: newComment.id,
-            type: "comment",
-            message: newComment.content,
-            is_read: false,
-            created_at: new Date().toISOString(),
-          },
-        );
+        await supabase.from("notifications").insert({
+          recipient_id: postAuthorId,
+          sender_id: currentUser.id,
+          post_id: postId,
+          comment_id: newComment.id,
+          type: "comment",
+          message: newComment.content,
+          is_read: false,
+        });
       }
 
       return { success: true, comment: newComment };
@@ -790,61 +756,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     try {
       // Get following user IDs
-      const followingResult = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.follows,
-        [Query.equal("follower_id", currentUser.id), Query.limit(500)],
-      );
+      const { data: followingData } = await supabase
+        .from("follows")
+        .select("following_id")
+        .eq("follower_id", currentUser.id);
 
-      if (followingResult.documents.length === 0) {
+      if (!followingData || followingData.length === 0) {
         setFollowingPosts([]);
         return;
       }
 
-      const followingIds = followingResult.documents.map(
-        (doc) => doc.following_id as string,
-      );
+      const followingIds = followingData.map((f) => f.following_id);
 
       // Fetch posts from followed users
-      const postsResult = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.posts,
-        [
-          Query.equal("author_id", followingIds),
-          Query.orderDesc("created_at"),
-          Query.limit(100),
-        ],
-      );
+      const { data: posts } = await supabase
+        .from("posts_with_likes_and_comments")
+        .select(
+          `
+          id,
+          content,
+          image_url,
+          created_at,
+          likes_count,
+          is_liked_by_user,
+          author_id,
+          comment_count,
+          profiles!posts_author_id_fkey(
+            id,
+            username,
+            display_name,
+            avatar_url,
+            bio,
+            followers_count,
+            following_count
+          )
+        `
+        )
+        .in("author_id", followingIds)
+        .order("created_at", { ascending: false })
+        .limit(100);
 
-      if (postsResult.documents.length > 0) {
-        const authorIds = [
-          ...new Set(
-            postsResult.documents.map((doc) => doc.author_id as string),
-          ),
-        ];
-        const profilesMap = await fetchProfilesByIds(authorIds);
-
-        const transformedPosts: Post[] = postsResult.documents.map((post) => ({
-          id: post.$id,
-          content: post.content as string,
-          createdAt: post.created_at as string,
-          likes: (post.likes_count as number) || 0,
-          commentCount: (post.comment_count as number) || 0,
-          imageUrl: (post.image_url as string) || null,
-          author: profilesMap.get(post.author_id as string) || {
-            id: post.author_id as string,
-            username: "Unknown",
-            displayName: "Unknown User",
-            avatar: null,
-            bio: "",
-            followers: 0,
-            following: 0,
+      if (posts) {
+        const transformedPosts: Post[] = (
+          posts as unknown as SupabasePost[]
+        ).map((post) => ({
+          id: post.id,
+          content: post.content,
+          createdAt: post.created_at,
+          likes: post.likes_count || 0,
+          commentCount: post.comment_count || 0,
+          imageUrl: post.image_url,
+          author: {
+            id: post.profiles.id,
+            username: post.profiles.username,
+            displayName: post.profiles.display_name,
+            avatar: post.profiles.avatar_url,
+            bio: post.profiles.bio || "",
+            followers: post.profiles.followers_count || 0,
+            following: post.profiles.following_count || 0,
           },
         }));
 
         setFollowingPosts(transformedPosts);
-      } else {
-        setFollowingPosts([]);
       }
     } catch (error) {
       console.error("Error fetching following posts:", error);
@@ -870,24 +843,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const isCurrentlyFollowing = following.has(userId);
 
       if (isCurrentlyFollowing) {
-        //Unfollow - find and delete the follow document
-        const followResult = await databases.listDocuments(
-          DATABASE_ID,
-          COLLECTION_IDS.follows,
-          [
-            Query.equal("follower_id", currentUser.id),
-            Query.equal("following_id", userId),
-            Query.limit(1),
-          ],
-        );
-
-        if (followResult.documents.length > 0) {
-          await databases.deleteDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.follows,
-            followResult.documents[0].$id,
-          );
-        }
+        //Unfollow
+        await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", currentUser.id)
+          .eq("following_id", userId);
 
         setFollowing((prev) => {
           const newSet = new Set(prev);
@@ -896,33 +857,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
       } else {
         //Follow
-        await databases.createDocument(
-          DATABASE_ID,
-          COLLECTION_IDS.follows,
-          ID.unique(),
-          {
-            follower_id: currentUser.id,
-            following_id: userId,
-          },
-        );
+        await supabase.from("follows").insert({
+          follower_id: currentUser.id,
+          following_id: userId,
+        });
 
         setFollowing((prev) => new Set(prev).add(userId));
 
         //Notification creation on follow
         if (userId !== currentUser.id) {
-          await databases.createDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.notifications,
-            ID.unique(),
-            {
-              recipient_id: userId,
-              sender_id: currentUser.id,
-              type: "follow",
-              message: "started following you",
-              is_read: false,
-              created_at: new Date().toISOString(),
-            },
-          );
+          await supabase.from("notifications").insert({
+            recipient_id: userId,
+            sender_id: currentUser.id,
+            type: "follow",
+            message: "started following you",
+            is_read: false,
+          });
         }
       }
     } catch (error) {
@@ -938,54 +888,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const notificationsResult = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.notifications,
-        [
-          Query.equal("recipient_id", currentUser.id),
-          Query.orderDesc("created_at"),
-          Query.limit(50),
-        ],
-      );
+      //First, get notifications without the join
+      const { data: notificationsData, error: notificationsError } =
+        await supabase
+          .from("notifications")
+          .select("*")
+          .eq("recipient_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      if (notificationsResult.documents.length === 0) {
+      if (notificationsError) throw notificationsError;
+
+      if (!notificationsData || notificationsData.length === 0) {
         setNotifications([]);
         setUnreadNotificationCount(0);
         return;
       }
 
       //Get unique sender IDs
-      const senderIds = [
-        ...new Set(
-          notificationsResult.documents.map((doc) => doc.sender_id as string),
-        ),
-      ];
+      const senderIds = [...new Set(notificationsData.map((n) => n.sender_id))];
 
       //Then get sender profiles separately
-      const profilesMap = await fetchProfilesByIds(senderIds);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .in("id", senderIds);
 
-      const formattedNotifications: Notification[] =
-        notificationsResult.documents.map((notif) => {
-          const senderProfile = profilesMap.get(notif.sender_id as string);
+      if (profilesError) throw profilesError;
+
+      //Create a map for easy lookup
+      const profilesMap = new Map();
+      profilesData?.forEach((profile) => {
+        profilesMap.set(profile.id, profile);
+      });
+
+      const formattedNotifications: Notification[] = notificationsData.map(
+        (notif) => {
+          const senderProfile = profilesMap.get(notif.sender_id);
           return {
-            id: notif.$id,
-            type: notif.type as "like" | "comment" | "follow",
-            message: notif.message as string,
-            isRead: notif.is_read as boolean,
-            createdAt: notif.created_at as string,
-            postId: (notif.post_id as string) || undefined,
+            id: notif.id,
+            type: notif.type,
+            message: notif.message,
+            isRead: notif.is_read,
+            createdAt: notif.created_at,
+            postId: notif.post_id,
             sender: {
-              id: notif.sender_id as string,
+              id: notif.sender_id,
               username: senderProfile?.username || "Unknown",
-              displayName: senderProfile?.displayName || "Unknown User",
-              avatar: senderProfile?.avatar || null,
+              displayName: senderProfile?.display_name || "Unknown User",
+              avatar: senderProfile?.avatar_url || null,
             },
           };
-        });
+        }
+      );
 
       setNotifications(formattedNotifications);
       setUnreadNotificationCount(
-        formattedNotifications.filter((n) => !n.isRead).length,
+        formattedNotifications.filter((n) => !n.isRead).length
       );
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -994,17 +953,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
-      await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.notifications,
-        notificationId,
-        { is_read: true },
-      );
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("id", notificationId);
 
       setNotifications((prev) =>
         prev.map((notif) =>
-          notif.id === notificationId ? { ...notif, isRead: true } : notif,
-        ),
+          notif.id === notificationId ? { ...notif, isRead: true } : notif
+        )
       );
       setUnreadNotificationCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
@@ -1016,27 +973,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!currentUser) return;
 
     try {
-      const unreadResult = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTION_IDS.notifications,
-        [
-          Query.equal("recipient_id", currentUser.id),
-          Query.equal("is_read", false),
-          Query.limit(100),
-        ],
-      );
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("recipient_id", currentUser.id)
+        .eq("is_read", false);
 
-      await Promise.all(
-        unreadResult.documents.map((doc) =>
-          databases.updateDocument(
-            DATABASE_ID,
-            COLLECTION_IDS.notifications,
-            doc.$id,
-            { is_read: true },
-          ),
-        ),
-      );
-
+      //Commented out to avoid automatically clearing new mark of notifications on frontend, should only cleared as read on next fetch/render
+      /* setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, isRead: true }))
+      ); */
       setUnreadNotificationCount(0);
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
@@ -1064,66 +1010,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   //Deleting posts
   const deletePost = async (
     postId: string,
-    imageUrl?: string | null,
+    imageUrl?: string | null
   ): Promise<{ success: boolean; error?: Error }> => {
     try {
-      await databases.deleteDocument(DATABASE_ID, COLLECTION_IDS.posts, postId);
+      const { error } = await supabase.from("posts").delete().eq("id", postId);
+
+      if (error) {
+        console.error("Error deleting post:", error);
+        return { success: false, error };
+      }
 
       //To delete attached image from bucket
       if (imageUrl) {
-        try {
-          const url = new URL(imageUrl);
-          const pathParts = url.pathname.split("/");
-          const filesIndex = pathParts.indexOf("files");
-          if (filesIndex !== -1 && pathParts[filesIndex + 1]) {
-            const fileId = pathParts[filesIndex + 1];
-            await storage.deleteFile(BUCKET_ID, fileId);
-            console.log("Image deleted from storage:", fileId);
+        const path = imageUrl.split("/post-images/")[1];
+        if (path) {
+          const { error: storageError } = await supabase.storage
+            .from("post-images")
+            .remove([path]);
+          if (storageError) {
+            console.error("Failed to delete image from storage:", storageError);
+          } else {
+            console.log("Image deleted from storage:", path);
           }
-        } catch (storageError) {
-          console.error("Failed to delete image from storage:", storageError);
         }
-      }
-
-      // Clean up related documents (likes, comments, notifications)
-      try {
-        const relatedLikes = await databases.listDocuments(
-          DATABASE_ID,
-          COLLECTION_IDS.likes,
-          [Query.equal("post_id", postId), Query.limit(500)],
-        );
-        await Promise.all(
-          relatedLikes.documents.map((doc) =>
-            databases.deleteDocument(
-              DATABASE_ID,
-              COLLECTION_IDS.likes,
-              doc.$id,
-            ),
-          ),
-        );
-
-        const relatedComments = await databases.listDocuments(
-          DATABASE_ID,
-          COLLECTION_IDS.comments,
-          [Query.equal("post_id", postId), Query.limit(500)],
-        );
-        await Promise.all(
-          relatedComments.documents.map((doc) =>
-            databases.deleteDocument(
-              DATABASE_ID,
-              COLLECTION_IDS.comments,
-              doc.$id,
-            ),
-          ),
-        );
-      } catch (cleanupError) {
-        console.error("Error cleaning up related documents:", cleanupError);
       }
 
       setPosts((prev) => prev.filter((post) => post.id !== postId));
       setFollowingPosts((prev) => prev.filter((post) => post.id !== postId));
       setComments((prev) =>
-        prev.filter((comment) => comment.postId !== postId),
+        prev.filter((comment) => comment.postId !== postId)
       );
 
       return { success: true };
@@ -1135,14 +1050,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   //Deleting comments
   const deleteComment = async (
-    commentId: string,
+    commentId: string
   ): Promise<{ success: boolean; error?: Error }> => {
     try {
-      await databases.deleteDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.comments,
-        commentId,
-      );
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", commentId);
+
+      if (error) {
+        console.error("Error deleting comment:", error);
+        return { success: false, error };
+      }
 
       setComments((prev) => prev.filter((comment) => comment.id !== commentId));
 

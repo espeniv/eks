@@ -3,7 +3,7 @@
 import { useApp } from "@/context/app-context";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { databases, DATABASE_ID, COLLECTION_IDS } from "@/lib/appwrite";
+import { supabase } from "@/lib/supabase";
 import { emojis } from "@/lib/avatars";
 
 export default function EditProfilePage({
@@ -39,16 +39,16 @@ export default function EditProfilePage({
     if (!currentUser) return;
 
     try {
-      await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTION_IDS.profiles,
-        currentUser.id,
-        {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
           bio: bio.trim(),
           avatar_url: selectedEmoji,
           display_name: displayName.trim(),
-        },
-      );
+        })
+        .eq("id", currentUser.id);
+
+      if (error) throw error;
 
       const updatedUser = {
         ...currentUser,
